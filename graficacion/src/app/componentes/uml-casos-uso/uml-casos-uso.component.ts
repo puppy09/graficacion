@@ -32,6 +32,28 @@ export class UmlCasosUsoComponent {
     });
 
     // Define la plantilla de nodo con puerto
+    this.diagram.nodeTemplateMap.add('stickman', 
+      $(go.Node, 'Vertical',
+        $(go.Picture, {
+          source: 'images/stickman.png',
+          width: 50,
+          height: 50
+        }),
+        $(go.TextBlock,
+          {
+            margin: 5, editable: true, font: '14px sans-serif', stroke: 'black'},
+            new go.Binding('text', 'text').makeTwoWay()
+          ),
+          $(go.Shape, "Circle", 
+            {
+              width: 8, height: 8, fill: "black", strokeWidth: 0,
+              portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"
+            }
+          )
+        )
+      );
+        
+    
     this.diagram.nodeTemplate = $(
       go.Node,
       'Auto',
@@ -42,13 +64,13 @@ export class UmlCasosUsoComponent {
       }, new go.Binding('fill', 'color')),
       $(go.TextBlock, {
         margin: 10,
-        font: '14px sans-serif',
+        font: '20px sans-serif',
         stroke: 'black',
         editable: true,
       }, new go.Binding('text', 'text').makeTwoWay()),
       $(go.Panel, 'Spot',
         $(go.Shape, 'Circle', {
-          width: 8, height: 8, fill: 'black', strokeWidth: 0,
+          width: 8, height: 8, fill: 'transparent', strokeWidth: 0,
           alignment: go.Spot.Right, alignmentFocus: go.Spot.Left,
           portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer'
         })
@@ -60,7 +82,7 @@ export class UmlCasosUsoComponent {
       $(go.Link, { routing: go.Link.Orthogonal, corner: 5, relinkableFrom: true, relinkableTo: true},
         $(go.Shape, {stroke: 'blue', strokeDashArray: [4,2]}),
         $(go.Shape, {toArrow: 'OpenTriangle', stroke: 'blue'}),
-        $(go.TextBlock, '<<entend>>', {segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 12px sans-serif", stroke: "blue", editable: true})
+        $(go.TextBlock, '<<entend>>', {segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 20px sans-serif", stroke: "blue", editable: true})
       )
     );
 
@@ -70,7 +92,7 @@ export class UmlCasosUsoComponent {
       $(go.Link, { routing: go.Link.Orthogonal, corner: 5, relinkableFrom: true, relinkableTo: true},
         $(go.Shape, {stroke: 'green', strokeDashArray: [4,2]}),
         $(go.Shape, {toArrow: 'OpenTriangle', stroke: 'green'}),
-        $(go.TextBlock, '<<include>>', {segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 12px sans-serif", stroke: "green", editable: true})
+        $(go.TextBlock, '<<include>>', {segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 20px sans-serif", stroke: "green", editable: true})
       )
     );
     console.log("se añade modo inclusion")
@@ -86,7 +108,7 @@ export class UmlCasosUsoComponent {
     // Define el modelo de datos inicial
     this.diagram.model = $(go.GraphLinksModel, {
       nodeDataArray: [
-        { key: 1, text: 'Usuario', color: '#0395b7' },
+        { key: 1, text: 'Usuario', category: 'stickman' },
         { key: 2, text: 'Iniciar Sesión', color: '#f9a200' },
         { key: 3, text: 'Registro', color: '#f9a200' },
       ],
@@ -103,14 +125,15 @@ export class UmlCasosUsoComponent {
 
     this.palette.model = $(go.GraphLinksModel, {
       nodeDataArray: [
-        { key: 3, text: 'Actor', color: '#0395b7' },
         { key: 4, text: 'C de U', color: '#f9a200' },
+        {key: 'stickman', category:'stickman', text: 'Actor'}
       ],
+      
     });
   }
 
   // Agregar flechas dinámicamente entre nodos
-  agregarFlecha() {
+  /*agregarFlecha() {
     const model = this.diagram.model as go.GraphLinksModel;
     
     let linkData: any = {from:2, to:3};
@@ -123,7 +146,7 @@ export class UmlCasosUsoComponent {
     console.log("Añadiendo link: ", linkData);
     model.addLinkData(linkData);
     //console.log('Flecha agregada entre nodos 1 y 2');
-  }
+  }*/
 
   // Guardar el diagrama en formato JSON
   guardarDiagrama() {
