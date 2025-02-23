@@ -11,6 +11,7 @@ import jsPDF from "jspdf";
 export class UmlCasosUsoComponent {
   private diagram!: go.Diagram;
   private palette!: go.Palette;
+  tipoRelacion: string = "";
 
   ngOnInit() {
     this.initDiagram();
@@ -47,20 +48,40 @@ export class UmlCasosUsoComponent {
       }, new go.Binding('text', 'text').makeTwoWay()),
       $(go.Panel, 'Spot',
         $(go.Shape, 'Circle', {
-          width: 8, height: 8, fill: 'transparent', strokeWidth: 0,
+          width: 8, height: 8, fill: 'black', strokeWidth: 0,
           alignment: go.Spot.Right, alignmentFocus: go.Spot.Left,
           portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer'
         })
       )
     );
 
+    //Adicion de la relacion extend
+    this.diagram.linkTemplateMap.add('extend',
+      $(go.Link, { routing: go.Link.Orthogonal, corner: 5, relinkableFrom: true, relinkableTo: true},
+        $(go.Shape, {stroke: 'blue', strokeDashArray: [4,2]}),
+        $(go.Shape, {toArrow: 'OpenTriangle', stroke: 'blue'}),
+        $(go.TextBlock, '<<entend>>', {segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 12px sans-serif", stroke: "blue", editable: true})
+      )
+    );
+
+    console.log("Se añade modo extension")
+    //Adicion de la relacion extend
+    this.diagram.linkTemplateMap.add('include',
+      $(go.Link, { routing: go.Link.Orthogonal, corner: 5, relinkableFrom: true, relinkableTo: true},
+        $(go.Shape, {stroke: 'green', strokeDashArray: [4,2]}),
+        $(go.Shape, {toArrow: 'OpenTriangle', stroke: 'green'}),
+        $(go.TextBlock, '<<include>>', {segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 12px sans-serif", stroke: "green", editable: true})
+      )
+    );
+    console.log("se añade modo inclusion")
+
     // Define la plantilla de enlace
-    this.diagram.linkTemplate = $(
+    /*this.diagram.linkTemplate = $(
       go.Link,
       { routing: go.Link.Orthogonal, corner: 5, relinkableFrom: true, relinkableTo: true },
       $(go.Shape, { stroke: 'black' }),
       $(go.Shape, { toArrow: 'Standard', stroke: 'black' })
-    );
+    );*/
 
     // Define el modelo de datos inicial
     this.diagram.model = $(go.GraphLinksModel, {
@@ -91,8 +112,17 @@ export class UmlCasosUsoComponent {
   // Agregar flechas dinámicamente entre nodos
   agregarFlecha() {
     const model = this.diagram.model as go.GraphLinksModel;
-    model.addLinkData({ from: 1, to: 2 });
-    console.log('Flecha agregada entre nodos 1 y 2');
+    
+    let linkData: any = {from:2, to:3};
+    if(this.tipoRelacion == 'extend'){
+      linkData.category = 'extend';
+    }
+    if(this.tipoRelacion == 'include'){
+      linkData.category = 'include';
+    }
+    console.log("Añadiendo link: ", linkData);
+    model.addLinkData(linkData);
+    //console.log('Flecha agregada entre nodos 1 y 2');
   }
 
   // Guardar el diagrama en formato JSON
@@ -133,5 +163,21 @@ export class UmlCasosUsoComponent {
     const pdf = new jsPDF("landscape", "mm", "a4");
     pdf.addImage(imageData, "PNG", 10, 10, 280, 150); // Adjust position & size
     pdf.save("diagrama.pdf");
+  }
+
+  extensionAsociacion(){
+      this.tipoRelacion = 'extend';
+      //this.diagram.toolManager.linkingTool = { category: 'extend' };
+      //this.agregarFlecha();
+      this.diagram.toolManager.linkingTool.archetypeLinkData = { category: 'extend' };
+      //this.diagram.model.setDataProperty((this.diagram.model as go.GraphLinksModel), "archetypeLinkData", { category: 'extend' });
+      console.log("Modo de Extensión")
+  }
+  inclusionAsociacion(){
+    this.tipoRelacion = 'include';
+    //this.agregarFlecha();
+    this.diagram.toolManager.linkingTool.archetypeLinkData = { category: 'include' };
+    this.diagram.model.setDataProperty((this.diagram.model as go.GraphLinksModel), "archetypeLinkData", { category: 'extend' });
+    console.log("Modo de Inclusión")
   }
 }
