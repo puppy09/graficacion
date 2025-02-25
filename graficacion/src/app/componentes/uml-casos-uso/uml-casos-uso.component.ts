@@ -29,6 +29,7 @@ export class UmlCasosUsoComponent {
       'linkingTool.direction': go.LinkingTool.ForwardsOnly,
       'linkReshapingTool.isEnabled': true,
       'relinkingTool.isEnabled': true,
+      'grid.visible': true,
     });
 
     // Define la plantilla de nodo con puerto
@@ -42,7 +43,7 @@ export class UmlCasosUsoComponent {
         $(go.TextBlock,
           {
             margin: 5, editable: true, font: '14px sans-serif', stroke: 'black'},
-            new go.Binding('text', 'text').makeTwoWay()
+            new go.Binding('text', 'text').makeTwoWay(), new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify)
           ),
           $(go.Shape, "Circle", 
             {
@@ -54,29 +55,45 @@ export class UmlCasosUsoComponent {
       );
         
     
-    this.diagram.nodeTemplate = $(
-      go.Node,
-      'Auto',
-      $(go.Shape, 'RoundedRectangle', {
-        fill: 'lightblue',
+      
+
+    this.diagram.nodeTemplateMap.add('cu',
+      $(go.Node, 'Auto',
+        $(go.Shape, 'RoundedRectangle', {
+          fill: '#f9a200',
         stroke: 'black',
         strokeWidth: 1,
-      }, new go.Binding('fill', 'color')),
-      $(go.TextBlock, {
-        margin: 10,
-        font: '20px sans-serif',
-        stroke: 'black',
-        editable: true,
-      }, new go.Binding('text', 'text').makeTwoWay()),
-      $(go.Panel, 'Spot',
-        $(go.Shape, 'Circle', {
-          width: 8, height: 8, fill: 'transparent', strokeWidth: 0,
-          alignment: go.Spot.Right, alignmentFocus: go.Spot.Left,
-          portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer'
-        })
+        }, new go.Binding('fill', 'color'), new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify)),
+        $(go.TextBlock,
+          {
+            margin: 5, editable: true, font: '14px sans-serif', stroke: 'black'},
+            new go.Binding('text', 'text').makeTwoWay()
+          ),
+          $(go.Shape, "Circle", 
+            {
+              width: 8, height: 8, fill: "transparent", strokeWidth: 0,
+              portId: "left", fromLinkable: true, toLinkable: true, cursor: "pointer"
+            }
+          )
+        )
+    )
+
+    this.diagram.nodeTemplateMap.add('delimitacion', 
+      $(go.Node, 'Auto',
+        { resizable: true, resizeObjectName: "SHAPE", reshapable: true, rotatable: true, layerName: "Background"},
+        $(go.Shape, "Rectangle",
+          {
+            name: "SHAPE",
+            fill: "transparent", stroke: "black", strokeWidth: 2, minSize: new go.Size(50, 50)
+          },
+          new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify), new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify)
+        ),
+        $(go.TextBlock,
+          { margin: 5, editable: true, font: "bold 14px sans-serif" },
+          new go.Binding("text", "text").makeTwoWay()
+        ) 
       )
     );
-
     //Adicion de la relacion extend
     this.diagram.linkTemplateMap.add('extend',
       $(go.Link, { routing: go.Link.Orthogonal, corner: 5, relinkableFrom: true, relinkableTo: true},
@@ -85,7 +102,6 @@ export class UmlCasosUsoComponent {
         $(go.TextBlock, '<<entend>>', {segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 20px sans-serif", stroke: "blue", editable: true})
       )
     );
-
     console.log("Se añade modo extension")
     //Adicion de la relacion extend
     this.diagram.linkTemplateMap.add('include',
@@ -97,20 +113,12 @@ export class UmlCasosUsoComponent {
     );
     console.log("se añade modo inclusion")
 
-    // Define la plantilla de enlace
-    /*this.diagram.linkTemplate = $(
-      go.Link,
-      { routing: go.Link.Orthogonal, corner: 5, relinkableFrom: true, relinkableTo: true },
-      $(go.Shape, { stroke: 'black' }),
-      $(go.Shape, { toArrow: 'Standard', stroke: 'black' })
-    );*/
-
     // Define el modelo de datos inicial
     this.diagram.model = $(go.GraphLinksModel, {
       nodeDataArray: [
         { key: 1, text: 'Usuario', category: 'stickman' },
-        { key: 2, text: 'Iniciar Sesión', color: '#f9a200' },
-        { key: 3, text: 'Registro', color: '#f9a200' },
+        { key: 2, text: 'Iniciar Sesión', category: 'cu' },
+        { key: 3, text: 'Registro', category: 'cu' },
       ],
       linkDataArray: [{ from: 1, to: 2 }, { from: 1, to: 3 }],
     });
@@ -120,33 +128,17 @@ export class UmlCasosUsoComponent {
     const $ = go.GraphObject.make;
 
     this.palette = $(go.Palette, 'myPaletteDiv', {
-      nodeTemplate: this.diagram.nodeTemplate,
+      nodeTemplateMap: this.diagram.nodeTemplateMap,
     });
 
     this.palette.model = $(go.GraphLinksModel, {
       nodeDataArray: [
-        { key: 4, text: 'C de U', color: '#f9a200' },
-        {key: 'stickman', category:'stickman', text: 'Actor'}
-      ],
-      
+        { text: "Actor", category: 'stickman' },
+        { text: "Caso de Uso", category: 'cu' },
+        { text: "", category: 'delimitacion', size: "100 100" }
+      ]
     });
   }
-
-  // Agregar flechas dinámicamente entre nodos
-  /*agregarFlecha() {
-    const model = this.diagram.model as go.GraphLinksModel;
-    
-    let linkData: any = {from:2, to:3};
-    if(this.tipoRelacion == 'extend'){
-      linkData.category = 'extend';
-    }
-    if(this.tipoRelacion == 'include'){
-      linkData.category = 'include';
-    }
-    console.log("Añadiendo link: ", linkData);
-    model.addLinkData(linkData);
-    //console.log('Flecha agregada entre nodos 1 y 2');
-  }*/
 
   // Guardar el diagrama en formato JSON
   guardarDiagrama() {
@@ -160,6 +152,14 @@ export class UmlCasosUsoComponent {
     const modelo = localStorage.getItem('diagrama');
     if (modelo) {
       this.diagram.model = go.Model.fromJson(modelo);
+
+      const model = this.diagram.model as go.GraphLinksModel;
+      model.nodeDataArray.forEach((node: any) => {
+        if (node.loc){
+            node.loc = go.Point.parse(node.loc);
+            //this.diagram.model.setDataProperty(node, 'loc', node.loc);
+        }
+      });
       console.log('Diagrama cargado:', modelo);
     } else {
       console.log('No hay diagrama guardado.');
@@ -190,17 +190,18 @@ export class UmlCasosUsoComponent {
 
   extensionAsociacion(){
       this.tipoRelacion = 'extend';
-      //this.diagram.toolManager.linkingTool = { category: 'extend' };
-      //this.agregarFlecha();
       this.diagram.toolManager.linkingTool.archetypeLinkData = { category: 'extend' };
-      //this.diagram.model.setDataProperty((this.diagram.model as go.GraphLinksModel), "archetypeLinkData", { category: 'extend' });
       console.log("Modo de Extensión")
   }
   inclusionAsociacion(){
     this.tipoRelacion = 'include';
-    //this.agregarFlecha();
     this.diagram.toolManager.linkingTool.archetypeLinkData = { category: 'include' };
-    this.diagram.model.setDataProperty((this.diagram.model as go.GraphLinksModel), "archetypeLinkData", { category: 'extend' });
+    //this.diagram.model.setDataProperty((this.diagram.model as go.GraphLinksModel), "archetypeLinkData", { category: 'extend' });
     console.log("Modo de Inclusión")
+  }
+
+  asociacion(){
+    this.tipoRelacion = 'normal';
+    this.diagram.toolManager.linkingTool.archetypeLinkData = {};
   }
 }
