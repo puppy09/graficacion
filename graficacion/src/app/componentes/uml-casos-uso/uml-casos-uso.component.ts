@@ -54,7 +54,7 @@ export class UmlCasosUsoComponent {
     
         //Adicion de la relacion extend
     this.diagram.linkTemplateMap.add('extend',
-      $(go.Link, { routing: go.Link.Orthogonal, corner: 5, relinkableFrom: true, relinkableTo: true},
+      $(go.Link, { routing: go.Link.AvoidsNodes, adjusting: go.Link.Stretch,corner: 5, relinkableFrom: true, relinkableTo: true, reshapable: true},
         $(go.Shape, {stroke: 'blue', strokeDashArray: [4,2]}),
         $(go.Shape, {toArrow: 'OpenTriangle', stroke: 'blue'}),
         $(go.TextBlock, '<<entend>>', {segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 20px sans-serif", stroke: "blue", editable: true})
@@ -63,7 +63,7 @@ export class UmlCasosUsoComponent {
     console.log("Se añade modo extension")
     //Adicion de la relacion extend
     this.diagram.linkTemplateMap.add('include',
-      $(go.Link, { routing: go.Link.Orthogonal, corner: 5, relinkableFrom: true, relinkableTo: true},
+      $(go.Link, { routing: go.Link.AvoidsNodes, corner: 5, relinkableFrom: true, relinkableTo: true, reshapable:true, adjusting: go.Link.Stretch},
         $(go.Shape, {stroke: 'green', strokeDashArray: [4,2]}),
         $(go.Shape, {toArrow: 'OpenTriangle', stroke: 'green'}),
         $(go.TextBlock, '<<include>>', {segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 20px sans-serif", stroke: "green", editable: true})
@@ -71,6 +71,24 @@ export class UmlCasosUsoComponent {
     );
     console.log("se añade modo inclusion")
 
+    this.diagram.linkTemplate.selectionAdornmentTemplate =
+  $(go.Adornment, 'Link',
+    $(go.Shape, // Reshape handle
+      {
+        isPanelMain: true, 
+        stroke: "dodgerblue", 
+        strokeWidth: 3
+      }),
+    $(go.Shape, "Diamond", 
+      {
+        segmentIndex: 1, 
+        segmentFraction: 0.5, 
+        fill: "white", 
+        stroke: "dodgerblue", 
+        width: 10, 
+        height: 10
+      })
+  );
 
 
     // Define el modelo de datos inicial
