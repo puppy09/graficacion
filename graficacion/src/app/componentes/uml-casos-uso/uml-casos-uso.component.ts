@@ -32,69 +32,27 @@ export class UmlCasosUsoComponent {
       'grid.visible': true,
     });
 
+    
+
     // Define la plantilla de nodo con puerto
     this.diagram.nodeTemplateMap.add('stickman', 
-      $(go.Node, 'Vertical',
-        $(go.Picture, {
-          source: 'images/stickman.png',
-          width: 50,
-          height: 50
-        }),
-        $(go.TextBlock,
-          {
-            margin: 5, editable: true, font: '14px sans-serif', stroke: 'black'},
-            new go.Binding('text', 'text').makeTwoWay(), new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify)
-          ),
-          $(go.Shape, "Circle", 
-            {
-              width: 8, height: 8, fill: "black", strokeWidth: 0,
-              portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"
-            }
-          )
-        )
-      );
+      $(go.Node, 'Vertical', new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+        $(go.Picture, { source: 'images/stickman.png', width: 50, height: 50 }),
+        $(go.TextBlock, { margin: 5, editable: true, font: '14px sans-serif', stroke: 'black'}, new go.Binding('text', 'text').makeTwoWay()),
+          $(go.Shape, "Circle", { width: 8, height: 8, fill: "black", strokeWidth: 0, portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"})));
         
-    
-      
-
-    this.diagram.nodeTemplateMap.add('cu',
-      $(go.Node, 'Auto',
-        $(go.Shape, 'RoundedRectangle', {
-          fill: '#f9a200',
-        stroke: 'black',
-        strokeWidth: 1,
-        }, new go.Binding('fill', 'color'), new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify)),
-        $(go.TextBlock,
-          {
-            margin: 5, editable: true, font: '14px sans-serif', stroke: 'black'},
-            new go.Binding('text', 'text').makeTwoWay()
-          ),
-          $(go.Shape, "Circle", 
-            {
-              width: 8, height: 8, fill: "transparent", strokeWidth: 0,
-              portId: "left", fromLinkable: true, toLinkable: true, cursor: "pointer"
-            }
-          )
-        )
-    )
+    this.diagram.nodeTemplateMap.add('cu', 
+      $(go.Node, 'Auto',{ groupable: true },
+        $(go.Shape, 'RoundedRectangle', {fill: '#f9a200',stroke: 'black',strokeWidth: 1}, new go.Binding('fill', 'color')), new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+        $(go.TextBlock, {margin: 5, editable: true, font: '14px sans-serif', stroke: 'black'},new go.Binding('text', 'text').makeTwoWay()),
+          $(go.Shape, "Circle", {width: 8, height: 8, fill: "transparent", strokeWidth: 0, portId: "left", fromLinkable: true, toLinkable: true, cursor: "pointer"})));
 
     this.diagram.nodeTemplateMap.add('delimitacion', 
-      $(go.Node, 'Auto',
-        { resizable: true, resizeObjectName: "SHAPE", reshapable: true, rotatable: true, layerName: "Background"},
-        $(go.Shape, "Rectangle",
-          {
-            name: "SHAPE",
-            fill: "transparent", stroke: "black", strokeWidth: 2, minSize: new go.Size(50, 50)
-          },
-          new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify), new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify)
-        ),
-        $(go.TextBlock,
-          { margin: 5, editable: true, font: "bold 14px sans-serif" },
-          new go.Binding("text", "text").makeTwoWay()
-        ) 
-      )
-    );
-    //Adicion de la relacion extend
+      $(go.Node, 'Auto',{ resizable: true, resizeObjectName: "SHAPE", reshapable: true, rotatable: true, layerName: "Background"}, new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+        $(go.Shape, "Rectangle",{name: "SHAPE",fill: "transparent", stroke: "black", strokeWidth: 2, minSize: new go.Size(50, 50)},new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)),
+        $(go.TextBlock,{ margin: 5, editable: true, font: "bold 14px sans-serif" },new go.Binding("text", "text").makeTwoWay())));
+    
+        //Adicion de la relacion extend
     this.diagram.linkTemplateMap.add('extend',
       $(go.Link, { routing: go.Link.Orthogonal, corner: 5, relinkableFrom: true, relinkableTo: true},
         $(go.Shape, {stroke: 'blue', strokeDashArray: [4,2]}),
@@ -113,14 +71,16 @@ export class UmlCasosUsoComponent {
     );
     console.log("se añade modo inclusion")
 
+
+
     // Define el modelo de datos inicial
     this.diagram.model = $(go.GraphLinksModel, {
       nodeDataArray: [
-        { key: 1, text: 'Usuario', category: 'stickman' },
-        { key: 2, text: 'Iniciar Sesión', category: 'cu' },
-        { key: 3, text: 'Registro', category: 'cu' },
+        { key: 1, text: 'Usuario', category: 'stickman', loc: '100 100' },
+        { key: 2, text: 'Iniciar Sesión', category: 'cu', loc: "200 200" },
+        { key: 3, text: 'Registro', category: 'cu', loc: "300 300" },
       ],
-      linkDataArray: [{ from: 1, to: 2 }, { from: 1, to: 3 }],
+      linkDataArray: [{ from: 1, to: 2 }, { from: 1, to: 3 }]
     });
   }
 
@@ -142,6 +102,8 @@ export class UmlCasosUsoComponent {
 
   // Guardar el diagrama en formato JSON
   guardarDiagrama() {
+    const nodos = this.diagram.model.nodeDataArray;
+    
     const modelo = this.diagram.model.toJson();
     console.log('Diagrama guardado:', modelo);
     localStorage.setItem('diagrama', modelo);
@@ -155,10 +117,18 @@ export class UmlCasosUsoComponent {
 
       const model = this.diagram.model as go.GraphLinksModel;
       model.nodeDataArray.forEach((node: any) => {
-        if (node.loc){
-            node.loc = go.Point.parse(node.loc);
+        //if (node.loc){
+          //node.loc = go.Point.parse(node.loc);  
+        //const point = go.Point.parse(node.loc);
+          //let pointData = point
+
+            //console.log("Posicion" ,point);
+            this.diagram.model.setDataProperty(node, 'loc', go.Point.parse(node.loc));
+
+            console.log("Nodo: ", node);
+            //console.log("Node Location ",node.loc);
             //this.diagram.model.setDataProperty(node, 'loc', node.loc);
-        }
+        //}
       });
       console.log('Diagrama cargado:', modelo);
     } else {
