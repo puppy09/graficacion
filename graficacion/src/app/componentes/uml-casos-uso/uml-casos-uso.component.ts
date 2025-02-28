@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import * as go from 'gojs';
 import jsPDF from "jspdf";
+import { catchError } from 'rxjs';
 @Component({
   selector: 'app-uml-casos-uso',
   standalone: true,
@@ -34,9 +35,14 @@ export class UmlCasosUsoComponent {
 
     
 
+    this.diagram.toolManager.linkingTool.archetypeLinkData = { category: 'normal' };
     // Define la plantilla de nodo con puerto
     this.diagram.nodeTemplateMap.add('stickman', 
-      $(go.Node, 'Vertical', new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+      $(go.Node, 'Vertical', { 
+        locationSpot: go.Spot.Center, 
+        movable: true, 
+         },
+        new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
         $(go.Picture, { source: 'images/stickman.png', width: 50, height: 50 }),
         $(go.TextBlock, { margin: 5, editable: true, font: '14px sans-serif', stroke: 'black'}, new go.Binding('text', 'text').makeTwoWay()),
           $(go.Shape, "Circle", { width: 8, height: 8, fill: "black", strokeWidth: 0, portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"})));
@@ -48,7 +54,7 @@ export class UmlCasosUsoComponent {
           $(go.Shape, "Circle", {width: 8, height: 8, fill: "transparent", strokeWidth: 0, portId: "left", fromLinkable: true, toLinkable: true, cursor: "pointer"})));
 
     this.diagram.nodeTemplateMap.add('delimitacion', 
-      $(go.Node, 'Auto',{ resizable: true, resizeObjectName: "SHAPE", reshapable: true, rotatable: true, layerName: "Background"}, new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+      $(go.Node, 'Auto',{ resizable: true, resizeObjectName: "SHAPE", reshapable: true, layerName: "Background"}, new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
         $(go.Shape, "Rectangle",{name: "SHAPE",fill: "transparent", stroke: "black", strokeWidth: 2, minSize: new go.Size(50, 50)},new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)),
         $(go.TextBlock,{ margin: 5, editable: true, font: "bold 14px sans-serif" },new go.Binding("text", "text").makeTwoWay())));
     
@@ -71,6 +77,12 @@ export class UmlCasosUsoComponent {
     );
     console.log("se añade modo inclusion")
 
+    this.diagram.linkTemplateMap.add('normal',
+      $(go.Link, {routing: go.Link.AvoidsNodes, corner:5, relinkableFrom: true, relinkableTo: true, reshapable: true, adjusting: go.Link.Stretch},
+        $(go.Shape, { stroke: 'black', strokeWidth: 2}),
+        $(go.Shape, {toArrow: 'Standard', stroke: 'black', fill: 'black'})
+      )
+    );
     this.diagram.linkTemplate.selectionAdornmentTemplate =
   $(go.Adornment, 'Link',
     $(go.Shape, // Reshape handle
@@ -91,15 +103,16 @@ export class UmlCasosUsoComponent {
   );
 
 
+
     // Define el modelo de datos inicial
-    this.diagram.model = $(go.GraphLinksModel, {
+    /*this.diagram.model = $(go.GraphLinksModel, {
       nodeDataArray: [
         { key: 1, text: 'Usuario', category: 'stickman', loc: '100 100' },
         { key: 2, text: 'Iniciar Sesión', category: 'cu', loc: "200 200" },
         { key: 3, text: 'Registro', category: 'cu', loc: "300 300" },
       ],
       linkDataArray: [{ from: 1, to: 2 }, { from: 1, to: 3 }]
-    });
+    });*/
   }
 
   initPalette() {
@@ -190,6 +203,6 @@ export class UmlCasosUsoComponent {
 
   asociacion(){
     this.tipoRelacion = 'normal';
-    this.diagram.toolManager.linkingTool.archetypeLinkData = {};
+    this.diagram.toolManager.linkingTool.archetypeLinkData = {  category: 'normal' };
   }
 }
