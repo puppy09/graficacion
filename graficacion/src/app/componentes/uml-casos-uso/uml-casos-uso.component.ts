@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import * as go from 'gojs';
 import jsPDF from "jspdf";
-import { catchError } from 'rxjs';
+import { catchError, groupBy } from 'rxjs';
 @Component({
   selector: 'app-uml-casos-uso',
   standalone: true,
@@ -36,11 +36,39 @@ export class UmlCasosUsoComponent {
     
 
     this.diagram.toolManager.linkingTool.archetypeLinkData = { category: 'normal' };
+    
+    this.diagram.groupTemplate = $(go.Group, "Auto", { isSubGraphExpanded: true, movable: true, handlesDragDropForMembers: true, computesBoundsAfterDrag: true, background: "transparent", resizable: true,
+      memberValidation: (group: any, node: any) => node.category === "cu",
+      mouseDrop: function(e, grp) {
+        const diagram = grp.diagram;
+        const tool = diagram!.currentTool as any;
+        if(!tool.doingDragSelecting){
+          e.handled = true;
+          const group = grp as go.Group;
+          const groupKey = group.data.key;
+          diagram!.model.startTransaction("grouping");
+          diagram!.selection.each((part: go.Part) => {
+            if(part instanceof go.Node && part.category === "cu"){
+              diagram!.model.setDataProperty(part.data, "group", groupKey);
+            }
+          });
+          diagram!.model.commitTransaction("grouping");
+        }
+      }
+    },
+      $(go.Shape, "Rectangle", { fill: "rgba(128,128,128,0.2)", stroke: "gray", strokeWidth: 2 }),
+      $(go.Panel, "Vertical",
+        { defaultAlignment: go.Spot.Center, margin: 5 },
+        $(go.TextBlock, { font: "Bold 12pt Sans-Serif" }, new go.Binding("text", "key")),
+        $(go.Placeholder, {padding: 10})
+      )
+    );
+    
     // Define la plantilla de nodo con puerto
     this.diagram.nodeTemplateMap.add('stickman', 
       $(go.Node, 'Vertical', { 
         locationSpot: go.Spot.Center, 
-        movable: true, 
+        movable: true, groupable: false
          },
         new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
         $(go.Picture, { source: 'images/stickman.png', width: 50, height: 50 }),
@@ -48,15 +76,15 @@ export class UmlCasosUsoComponent {
           $(go.Shape, "Circle", { width: 8, height: 8, fill: "black", strokeWidth: 0, portId: "", fromLinkable: true, toLinkable: true, cursor: "pointer"})));
         
     this.diagram.nodeTemplateMap.add('cu', 
-      $(go.Node, 'Auto',{ groupable: true },
+      $(go.Node, 'Auto',{ groupable: true, /*movable: true, isInGroup: true, locationSpot: go.Spot.Center*/ },
         $(go.Shape, 'RoundedRectangle', {fill: '#f9a200',stroke: 'black',strokeWidth: 1}, new go.Binding('fill', 'color')), new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
         $(go.TextBlock, {margin: 5, editable: true, font: '14px sans-serif', stroke: 'black'},new go.Binding('text', 'text').makeTwoWay()),
           $(go.Shape, "Circle", {width: 8, height: 8, fill: "transparent", strokeWidth: 0, portId: "left", fromLinkable: true, toLinkable: true, cursor: "pointer"})));
 
-    this.diagram.nodeTemplateMap.add('delimitacion', 
+    /*this.diagram.nodeTemplateMap.add('delimitacion', 
       $(go.Node, 'Auto',{ resizable: true, resizeObjectName: "SHAPE", reshapable: true, layerName: "Background"}, new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
         $(go.Shape, "Rectangle",{name: "SHAPE",fill: "transparent", stroke: "black", strokeWidth: 2, minSize: new go.Size(50, 50)},new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)),
-        $(go.TextBlock,{ margin: 5, editable: true, font: "bold 14px sans-serif" },new go.Binding("text", "text").makeTwoWay())));
+        $(go.TextBlock,{ margin: 5, editable: true, font: "bold 14px sans-serif" },new go.Binding("text", "text").makeTwoWay())));*/
     
         //Adicion de la relacion extend
     this.diagram.linkTemplateMap.add('extend',
@@ -66,7 +94,7 @@ export class UmlCasosUsoComponent {
         $(go.TextBlock, '<<entend>>', {segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 20px sans-serif", stroke: "blue", editable: true})
       )
     );
-    console.log("Se añade modo extension")
+    //console.log("Se añade modo extension")
     //Adicion de la relacion extend
     this.diagram.linkTemplateMap.add('include',
       $(go.Link, { routing: go.Link.AvoidsNodes, corner: 5, relinkableFrom: true, relinkableTo: true, reshapable:true, adjusting: go.Link.Stretch},
@@ -75,7 +103,7 @@ export class UmlCasosUsoComponent {
         $(go.TextBlock, '<<include>>', {segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 20px sans-serif", stroke: "green", editable: true})
       )
     );
-    console.log("se añade modo inclusion")
+    //console.log("se añade modo inclusion")
 
     this.diagram.linkTemplateMap.add('normal',
       $(go.Link, {routing: go.Link.AvoidsNodes, corner:5, relinkableFrom: true, relinkableTo: true, reshapable: true, adjusting: go.Link.Stretch},
@@ -105,16 +133,27 @@ export class UmlCasosUsoComponent {
 
 
     // Define el modelo de datos inicial
-    /*this.diagram.model = $(go.GraphLinksModel, {
+    this.diagram.model = $(go.GraphLinksModel, {
       nodeDataArray: [
-        { key: 1, text: 'Usuario', category: 'stickman', loc: '100 100' },
-        { key: 2, text: 'Iniciar Sesión', category: 'cu', loc: "200 200" },
+        { key: "", isGroup: true},
+        /*{ key: 2, text: 'Iniciar Sesión', category: 'cu', loc: "200 200" },
         { key: 3, text: 'Registro', category: 'cu', loc: "300 300" },
+        { key: 1, text: 'Usuario', category: 'stickman', loc:"100 100" }*/
       ],
-      linkDataArray: [{ from: 1, to: 2 }, { from: 1, to: 3 }]
-    });*/
+      //linkDataArray: [{ from: 1, to: 2 }, { from: 1, to: 3 }]
+    });
+
+    this.diagram.addDiagramListener("ExternalObjectsDropped", (e)=>{
+      e.subject.each((part: Node)=> {
+        if(part instanceof go.Node && part.category === "cu" && part.containingGroup === null){
+          alert("error");
+          this.diagram.remove(part);
+        }
+      });
+    });
   }
 
+  
   initPalette() {
     const $ = go.GraphObject.make;
 
