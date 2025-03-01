@@ -58,8 +58,8 @@ export class UmlCasosUsoComponent {
     },
       $(go.Shape, "Rectangle", { fill: "rgba(128,128,128,0.2)", stroke: "gray", strokeWidth: 2 }),
       $(go.Panel, "Vertical",
-        { defaultAlignment: go.Spot.Center, margin: 5 },
-        $(go.TextBlock, { font: "Bold 12pt Sans-Serif" }, new go.Binding("text", "key")),
+        { defaultAlignment: go.Spot.Top, margin: 5 },
+        $(go.TextBlock, { font: "Bold 12pt Sans-Serif", alignment: go.Spot.Top, editable: true}, new go.Binding("text", "key")),
         $(go.Placeholder, {padding: 10})
       )
     );
@@ -81,11 +81,6 @@ export class UmlCasosUsoComponent {
         $(go.TextBlock, {margin: 5, editable: true, font: '14px sans-serif', stroke: 'black'},new go.Binding('text', 'text').makeTwoWay()),
           $(go.Shape, "Circle", {width: 8, height: 8, fill: "transparent", strokeWidth: 0, portId: "left", fromLinkable: true, toLinkable: true, cursor: "pointer"})));
 
-    /*this.diagram.nodeTemplateMap.add('delimitacion', 
-      $(go.Node, 'Auto',{ resizable: true, resizeObjectName: "SHAPE", reshapable: true, layerName: "Background"}, new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-        $(go.Shape, "Rectangle",{name: "SHAPE",fill: "transparent", stroke: "black", strokeWidth: 2, minSize: new go.Size(50, 50)},new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)),
-        $(go.TextBlock,{ margin: 5, editable: true, font: "bold 14px sans-serif" },new go.Binding("text", "text").makeTwoWay())));*/
-    
         //Adicion de la relacion extend
     this.diagram.linkTemplateMap.add('extend',
       $(go.Link, { routing: go.Link.AvoidsNodes, adjusting: go.Link.Stretch,corner: 5, relinkableFrom: true, relinkableTo: true, reshapable: true},
@@ -135,12 +130,8 @@ export class UmlCasosUsoComponent {
     // Define el modelo de datos inicial
     this.diagram.model = $(go.GraphLinksModel, {
       nodeDataArray: [
-        { key: "", isGroup: true},
-        /*{ key: 2, text: 'Iniciar Sesión', category: 'cu', loc: "200 200" },
-        { key: 3, text: 'Registro', category: 'cu', loc: "300 300" },
-        { key: 1, text: 'Usuario', category: 'stickman', loc:"100 100" }*/
+        { key: "sistema", isGroup: true},
       ],
-      //linkDataArray: [{ from: 1, to: 2 }, { from: 1, to: 3 }]
     });
 
     this.diagram.addDiagramListener("ExternalObjectsDropped", (e)=>{
@@ -164,8 +155,7 @@ export class UmlCasosUsoComponent {
     this.palette.model = $(go.GraphLinksModel, {
       nodeDataArray: [
         { text: "Actor", category: 'stickman' },
-        { text: "Caso de Uso", category: 'cu' },
-        { text: "", category: 'delimitacion', size: "100 100" }
+        { text: "Caso de Uso", category: 'cu' }
       ]
     });
   }
