@@ -162,37 +162,21 @@ export class UmlCasosUsoComponent {
 
   // Guardar el diagrama en formato JSON
   guardarDiagrama() {
-    const nodos = this.diagram.model.nodeDataArray;
-    
-    const modelo = this.diagram.model.toJson();
-    console.log('Diagrama guardado:', modelo);
-    localStorage.setItem('diagrama', modelo);
+    if(!this.diagram) return;
+    const jsonData = this.diagram.model.toJson();
+    localStorage.setItem("diagramaGuardado",jsonData);
+
+    alert("diagrama guardado correctamente");
   }
 
   // Cargar el diagrama desde JSON
   cargarDiagrama() {
-    const modelo = localStorage.getItem('diagrama');
-    if (modelo) {
-      this.diagram.model = go.Model.fromJson(modelo);
-
-      const model = this.diagram.model as go.GraphLinksModel;
-      model.nodeDataArray.forEach((node: any) => {
-        //if (node.loc){
-          //node.loc = go.Point.parse(node.loc);  
-        //const point = go.Point.parse(node.loc);
-          //let pointData = point
-
-            //console.log("Posicion" ,point);
-            this.diagram.model.setDataProperty(node, 'loc', go.Point.parse(node.loc));
-
-            console.log("Nodo: ", node);
-            //console.log("Node Location ",node.loc);
-            //this.diagram.model.setDataProperty(node, 'loc', node.loc);
-        //}
-      });
-      console.log('Diagrama cargado:', modelo);
-    } else {
-      console.log('No hay diagrama guardado.');
+    const jsonData = localStorage.getItem("diagramaGuardado");
+    if(jsonData) {
+      this.diagram.model = go.Model.fromJson(jsonData);
+      
+    }else{
+      alert("No hay un diagrama guardado")
     }
   }
 
