@@ -3,6 +3,8 @@ import * as go from 'gojs';
 import jsPDF from "jspdf";
 import html2canvas from 'html2canvas';
 import { catchError, groupBy } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+
 @Component({
   selector: 'app-uml-casos-uso',
   standalone: true,
@@ -14,6 +16,9 @@ export class UmlCasosUsoComponent {
   diagram!: go.Diagram;
   private palette!: go.Palette;
   tipoRelacion: string = "";
+
+  constructor(private toastr: ToastrService){}
+
 
   ngOnInit() {
     this.initDiagram();
@@ -138,7 +143,7 @@ export class UmlCasosUsoComponent {
     this.diagram.addDiagramListener("ExternalObjectsDropped", (e)=>{
       e.subject.each((part: Node)=> {
         if(part instanceof go.Node && part.category === "cu" && part.containingGroup === null){
-          alert("error");
+          this.error();
           this.diagram.remove(part);
         }
       });
@@ -167,7 +172,7 @@ export class UmlCasosUsoComponent {
     const jsonData = this.diagram.model.toJson();
     localStorage.setItem("diagramaGuardado",jsonData);
 
-    alert("diagrama guardado correctamente");
+    this.guardadoConExito();
   }
 
   // Cargar el diagrama desde JSON
@@ -177,7 +182,7 @@ export class UmlCasosUsoComponent {
       this.diagram.model = go.Model.fromJson(jsonData);
       
     }else{
-      alert("No hay un diagrama guardado")
+      this.errorCargar();
     }
   }
 
@@ -245,4 +250,22 @@ export class UmlCasosUsoComponent {
     this.tipoRelacion = 'normal';
     this.diagram.toolManager.linkingTool.archetypeLinkData = {  category: 'normal' };
   }
+
+  guardadoConExito(){
+    this.toastr.success('Diagrama Guardado con Éxito', 'Nice!');
+  }
+
+  cargadoConExito(){
+    this.toastr.success('Diagrama Guardado con Éxito', 'Nice');
+  }
+
+  error(){
+    this.toastr.error('Los nodos no pueden estar fuera del grupo', 'Error');
+  }
+
+  errorCargar(){
+    this.toastr.error('No hay un diagrama guardado', 'Error');
+  }
+  
 }
+
