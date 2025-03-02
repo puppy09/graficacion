@@ -1,135 +1,101 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import * as go from 'gojs';
 
 @Component({
   selector: 'app-uml-secuencias',
   standalone: true,
-  imports: [],
   templateUrl: './uml-secuencias.component.html',
-  styleUrl: './uml-secuencias.component.css'
+  styleUrls: ['./uml-secuencias.component.css']
 })
-export class UmlSecuenciasComponent implements OnInit {
-  private diagram!: go.Diagram;
-  private palette!: go.Palette;
+export class UmlSecuenciasComponent implements AfterViewInit {
+  @ViewChild('diagramDiv') diagramDiv!: ElementRef;
+  private myDiagram!: go.Diagram;
 
-  ngOnInit() {
+  ngAfterViewInit() {
     this.initDiagram();
-    this.initPalette();
   }
-
-  title = 'pruebago';
 
   initDiagram() {
     const $ = go.GraphObject.make;
 
-    this.diagram = $(go.Diagram, 'myDiagramDiv', {
-      'undoManager.isEnabled': true,
-      'linkingTool.isEnabled': true,
-      'linkingTool.direction': go.LinkingTool.ForwardsOnly,
-      'linkReshapingTool.isEnabled': true,
-      'relinkingTool.isEnabled': true
+    this.myDiagram = $(go.Diagram, this.diagramDiv.nativeElement, {
+      allowCopy: false,
+      'undoManager.isEnabled': true
     });
 
-    // 📌 Definir la plantilla de nodo para los actores/nodos normales
-    this.diagram.nodeTemplate = $(
-      go.Node,
-      'Auto',
-      $(go.Shape, 'RoundedRectangle', {
-        fill: 'lightblue',
-        stroke: 'black',
-        strokeWidth: 1,
-      }, new go.Binding('fill', 'color')),
-      $(go.TextBlock, {
-        margin: 10,
-        font: '14px sans-serif',
-        stroke: 'black',
-        editable: true,
-      }, new go.Binding('text', 'text').makeTwoWay()),
-      $(go.Panel, 'Spot',
-        $(go.Shape, 'Circle', {
-          width: 8, height: 8, fill: 'red', strokeWidth: 0,
-          alignment: go.Spot.Right, alignmentFocus: go.Spot.Left,
-          portId: '', fromLinkable: true, toLinkable: true, cursor: 'pointer'
-        })
-      )
-    );
-
-    // 📌 Definir la plantilla de nodo para las lifelines
-    this.diagram.nodeTemplateMap.add(
-      'lifeline',
+    // Plantilla de los actores principales (grupos)
+    this.myDiagram.groupTemplate = $(
+      go.Group, "Vertical",
+      { locationSpot: go.Spot.Top, selectionObjectName: "HEADER" },
+      new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
       $(
-        go.Node,
-        'Vertical',
-        { locationSpot: go.Spot.Top },
-        new go.Binding('location', 'loc', go.Point.parse),
-        $(
-          go.TextBlock,
-          { margin: 5, font: 'bold 14px sans-serif' },
-          new go.Binding('text', 'name')
-        ),
-        $(
-          go.Shape,
-          'LineV',
-          { stroke: 'black', strokeWidth: 2, height: 1000 } // Simula la línea infinita
-        )
+        go.Panel, "Auto", { name: "HEADER" },
+        $(go.Shape, "Rectangle", { fill: "#bbdefb", stroke: null }),
+        $(go.TextBlock, { margin: 5, font: "10pt sans-serif" }, new go.Binding("text"))
+      ),
+      $(
+        go.Shape, // Línea de vida
+        { figure: "LineV", stroke: "gray", strokeDashArray: [3, 3], width: 1 },
+        new go.Binding("height", "duration")
       )
     );
 
-    // 📌 Definir la plantilla de enlace
-    this.diagram.linkTemplate = $(
-      go.Link,
-      { routing: go.Link.Orthogonal, corner: 5, relinkableFrom: true, relinkableTo: true },
-      $(go.Shape, { stroke: 'black' }),
-      $(go.Shape, { toArrow: 'Standard', stroke: 'black' })
+    // Plantilla para los nodos de acción (más largos)
+    this.myDiagram.nodeTemplate = $(
+      go.Node, "Auto",
+      { locationSpot: go.Spot.Top },
+      new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+      $(
+        go.Panel, "Vertical",
+        $(go.Shape, "Rectangle", { fill: "white", stroke: "black", width: 15, height: 40 }),  // ← Aumentamos la altura del nodo
+        $(go.Shape, "Rectangle", { fill: "black", width: 15, height: 4 })  // ← Línea negra arriba
+      )
     );
 
-    // 📌 Definir el modelo con actores y lifelines
-    this.diagram.model = $(go.GraphLinksModel, {
+    // Plantilla para las conexiones (flechas)
+    this.myDiagram.linkTemplate = $(
+      go.Link,
+      { curve: go.Link.JumpOver, toShortLength: 2 },
+      $(go.Shape, { stroke: "black" }),
+      $(go.Shape, { toArrow: "OpenTriangle", stroke: "black" }),
+      $(go.TextBlock, { font: "9pt sans-serif", segmentIndex: 0, segmentOffset: new go.Point(0, -10) },
+        new go.Binding("text"))
+    );
+
+    this.loadModel();
+  }
+
+  loadModel() {
+    const modelData = {
+      class: "go.GraphLinksModel",
       nodeDataArray: [
-        { key: 1, name: 'Actor', loc: '0 0', category: 'lifeline' },
-        { key: 2, name: 'Sistema', loc: '150 0', category: 'lifeline' },
+        { key: "Fred", text: "Fred: Patron", isGroup: true, loc: "0 0", duration: 150 },
+        { key: "Bob", text: "Bob: Waiter", isGroup: true, loc: "120 0", duration: 150 },
+        { key: "Hank", text: "Hank: Cook", isGroup: true, loc: "240 0", duration: 150 },
+        { key: "Renee", text: "Renee: Cashier", isGroup: true, loc: "360 0", duration: 150 },
+
+        // Nodos pequeños (ahora más largos)
+        { key: -5, group: "Bob", loc: "120 30" },
+        { key: -6, group: "Hank", loc: "240 60" },
+        { key: -7, group: "Fred", loc: "0 90" },
+        { key: -8, group: "Bob", loc: "120 120" },
+        { key: -9, group: "Fred", loc: "0 150" },
+        { key: -10, group: "Renee", loc: "360 180" }
       ],
-      linkDataArray: []
-    });
+      linkDataArray: [
+        { from: "Fred", to: -5, text: "order" },
+        { from: -5, to: -6, text: "order food" },
+        { from: -5, to: -7, text: "serve drinks" },
+        { from: -6, to: -8, text: "finish cooking" },
+        { from: -8, to: -9, text: "serve food" },
+        { from: -9, to: -10, text: "pay" }
+      ]
+    };
+
+    this.myDiagram.model = go.Model.fromJson(modelData);
   }
 
-  initPalette() {
-    const $ = go.GraphObject.make;
-
-    this.palette = $(go.Palette, 'myPaletteDiv', {
-      nodeTemplate: this.diagram.nodeTemplate,
-    });
-
-    this.palette.model = $(go.GraphLinksModel, {
-      nodeDataArray: [
-        { key: 3, text: 'Clase', color: 'lightblue' },
-        { key: 4, text: 'Interfaz', color: 'orange' },
-      ],
-    });
-  }
-
-  // Agregar flechas dinámicamente entre nodos
-  agregarFlecha() {
-    const model = this.diagram.model as go.GraphLinksModel;
-    model.addLinkData({ from: 1, to: 2 });
-    console.log('Flecha agregada entre nodos 1 y 2');
-  }
-
-  // Guardar el diagrama en formato JSON
-  guardarDiagrama() {
-    const modelo = this.diagram.model.toJson();
-    console.log('Diagrama guardado:', modelo);
-    localStorage.setItem('diagrama', modelo);
-  }
-
-  // Cargar el diagrama desde JSON
-  cargarDiagrama() {
-    const modelo = localStorage.getItem('diagrama');
-    if (modelo) {
-      this.diagram.model = go.Model.fromJson(modelo);
-      console.log('Diagrama cargado:', modelo);
-    } else {
-      console.log('No hay diagrama guardado.');
-    }
+  saveModel() {
+    console.log(this.myDiagram.model.toJson());
   }
 }
