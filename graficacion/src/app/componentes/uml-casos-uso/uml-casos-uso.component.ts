@@ -136,7 +136,7 @@ export class UmlCasosUsoComponent {
     // Define el modelo de datos inicial
     this.diagram.model = $(go.GraphLinksModel, {
       nodeDataArray: [
-        { key: "sistema", isGroup: true},
+        { key: "Sistema", isGroup: true},
       ],
     });
 

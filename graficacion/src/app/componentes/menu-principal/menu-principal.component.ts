@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-menu-principal',
@@ -9,4 +10,9 @@ import { Component } from '@angular/core';
 })
 export class MenuPrincipalComponent {
 
+  constructor(private route: ActivatedRoute, private router: Router){}
+  
+  iraCU(){
+    this.router.navigate(['casosuso']);
+  }
 }
