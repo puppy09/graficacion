@@ -15,4 +15,17 @@ export class MenuPrincipalComponent {
   iraCU(){
     this.router.navigate(['casosuso']);
   }
+
+  iraClases(){
+    this.router.navigate(['clases']);
+  }
+  iraComponentes(){
+    this.router.navigate(['componentes']);
+  }
+  iraPaquetes(){
+    this.router.navigate(['paquetes']);
+  }
+  iraSecuencias(){
+    this.router.navigate(['secuencias']);
+  }
 }

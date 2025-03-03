@@ -154,6 +154,8 @@ button {
   text-transform: uppercase;
   cursor: pointer;
   transform: skew(1deg);
+  margin-top: 10px;
+  height: 50%;
 }
 
 span {
