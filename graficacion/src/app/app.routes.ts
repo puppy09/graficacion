@@ -7,7 +7,7 @@ import { UmlPaquetesComponent } from './componentes/uml-paquetes/uml-paquetes.co
 import { UmlSecuenciasComponent } from './componentes/uml-secuencias/uml-secuencias.component';
 
 export const routes: Routes = [
-    {path:'', component:MenuPrincipalComponent},
+    {path:'', component:UmlClasesComponent},
     {path:'casosuso',component:UmlCasosUsoComponent},
     {path:'componentes', component: UmlComponentesComponent},
     {path:'clases',component:UmlClasesComponent},
