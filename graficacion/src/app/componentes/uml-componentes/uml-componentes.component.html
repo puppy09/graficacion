@@ -1,1 +1,17 @@
-<p>uml-componentes works!</p>
+
+
+    <h1>Diagrama de componentes</h1>
+    <div class="diagram-container">
+        <div id="myPaletteDiv"></div>
+        <div id="myDiagramDiv"></div>
+    </div>
+
+    <!-- Buttons Below -->
+    <div class="button-container">
+        <button (click)="conectar()">Conectar</button>
+        <button (click)="guardarDiagrama()">Guardar Diagrama</button>
+        <button (click)="cargarDiagrama()">Cargar Diagrama</button>
+        <button (click)="eliminarElemento()">Eliminar Elemento</button>
+        <button (click)="guardarComoImagen(diagram)">Guardar PDF</button>
+        
+    </div>
