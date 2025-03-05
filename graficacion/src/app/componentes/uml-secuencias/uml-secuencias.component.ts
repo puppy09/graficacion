@@ -43,22 +43,32 @@ export class UmlSecuenciasComponent implements AfterViewInit {
     // Plantilla para los nodos de acción (más largos)
     this.myDiagram.nodeTemplate = $(
       go.Node, "Auto",
-      { locationSpot: go.Spot.Top },
+      {
+        locationSpot: go.Spot.Top,
+        movable: true,
+        dragComputation: function (node: go.Part, pt: go.Point): go.Point {
+          return new go.Point(node.location.x, pt.y); // Mantiene la posición x fija
+        }
+      },
       new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
       $(
         go.Panel, "Vertical",
-        $(go.Shape, "Rectangle", { fill: "white", stroke: "black", width: 15, height: 40 }),  // ← Aumentamos la altura del nodo
-        $(go.Shape, "Rectangle", { fill: "black", width: 15, height: 4 })  // ← Línea negra arriba
+        $(go.Shape, "Rectangle", 
+          { fill: "white", stroke: "black", width: 12, height: 30 } // Tamaño fijo
+        ),
+        $(go.Shape, "Rectangle", { fill: "black", width: 12, height: 3 }) // Línea superior fija
       )
     );
+    
 
     // Plantilla para las conexiones (flechas)
     this.myDiagram.linkTemplate = $(
       go.Link,
       { curve: go.Link.JumpOver, toShortLength: 2 },
       $(go.Shape, { stroke: "black" }),
-      $(go.Shape, { toArrow: "OpenTriangle", stroke: "black" }),
-      $(go.TextBlock, { font: "9pt sans-serif", segmentIndex: 0, segmentOffset: new go.Point(0, -10) },
+      $(go.Shape, { toArrow: "Standard", stroke: "black" }),
+      $(go.TextBlock, { font: "9pt sans-serif", segmentOffset: new go.Point(0, -10) },
+      
         new go.Binding("text"))
     );
 
@@ -69,10 +79,10 @@ export class UmlSecuenciasComponent implements AfterViewInit {
     const modelData = {
       class: "go.GraphLinksModel",
       nodeDataArray: [
-        { key: "Fred", text: "Fred: Patron", isGroup: true, loc: "0 0", duration: 150 },
-        { key: "Bob", text: "Bob: Waiter", isGroup: true, loc: "120 0", duration: 150 },
-        { key: "Hank", text: "Hank: Cook", isGroup: true, loc: "240 0", duration: 150 },
-        { key: "Renee", text: "Renee: Cashier", isGroup: true, loc: "360 0", duration: 150 },
+        { key: "Fred", text: "Fred: Patron", isGroup: true, loc: "0 0", duration: 300 },
+        { key: "Bob", text: "Bob: Waiter", isGroup: true, loc: "120 0", duration: 300 },
+        { key: "Hank", text: "Hank: Cook", isGroup: true, loc: "240 0", duration: 300 },
+        { key: "Renee", text: "Renee: Cashier", isGroup: true, loc: "360 0", duration: 300 },
 
         // Nodos pequeños (ahora más largos)
         { key: -5, group: "Bob", loc: "120 30" },
