@@ -1,1 +1,17 @@
-<p>uml-componentes works!</p>
+
+
+    <h1>Diagrama de componentes</h1>
+    <div class="diagram-container">
+        <div id="myPaletteDiv"></div>
+        <div id="myDiagramDiv"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/gojs@3.0.19/release/go.js"></script>
+    <!-- Buttons Below -->
+    <div class="button-container">
+        <button (click)="conectar()">Conectar</button>
+        <button (click)="guardarDiagrama()">Guardar diagrama</button>
+        <button (click)="cargarDiagrama()">Cargar diagrama</button>
+        <button (click)="eliminarElemento()">Eliminar elemento</button>
+        <button (click)="guardarComoImagen(diagram)">Guardar PDF</button>
+        
+    </div>
