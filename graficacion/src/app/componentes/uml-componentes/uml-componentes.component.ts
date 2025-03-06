@@ -52,12 +52,14 @@ export class UmlComponentesComponent {
                   stroke: "#ffc107",
                   strokeWidth: 3,
                   height: 60,
-                  width: 100
+                  width: 100,
+                  
               }),
               $(go.TextBlock, {
                   margin: 10,
                   font: "bold 16px sans-serif",
-                  textAlign: "center"
+                  textAlign: "center",
+                  editable: true
               }, new go.Binding("text", "name"))
           ),
           $(go.Panel, "Vertical",
@@ -74,8 +76,8 @@ export class UmlComponentesComponent {
                               stroke: null,
                               width: 14,
                               height: 14,
-                              fromLinkable: false,
-                              toLinkable: false
+                              fromLinkable: true,
+                              toLinkable: true
                           }
                       ),
                       $(go.TextBlock,
@@ -122,8 +124,8 @@ export class UmlComponentesComponent {
                             stroke: null,
                             width: 14,
                             height: 14,
-                            fromLinkable: false,
-                            toLinkable: false
+                            fromLinkable: true,
+                            toLinkable: true
                         }
                     ),
                     $(go.TextBlock,
@@ -135,25 +137,7 @@ export class UmlComponentesComponent {
     )
 );
 
-  // Define la plantilla de nodo para las interfaces
-  this.diagram.nodeTemplateMap.add("interface",
-    $(go.Node, "Horizontal",
-      $(go.Shape, "Circle",
-        {
-          portId: "",
-          fill: "#0dcaf0",
-          stroke: null,
-          width: 14,
-          height: 14,
-          fromLinkable: false,
-          toLinkable: false
-        }
-      ),
-      $(go.TextBlock,
-        { margin: 2, font: "12px sans-serif", editable: true },
-        new go.Binding("text", "name").makeTwoWay())
-    )
-  );
+
 
   // this.diagram.linkTemplate = $(go.Link,
   //   { routing: go.Link.AvoidsNodes, adjusting: go.Link.Stretch, corner: 5, relinkableFrom: true, relinkableTo: true, reshapable: true },
@@ -161,13 +145,23 @@ export class UmlComponentesComponent {
   //   $(go.Shape, { toArrow: "Standard", stroke: "#6c757d" })
   // );
   this.diagram.linkTemplateMap.add('asociar',
-    $(go.Link, { routing: go.Link.AvoidsNodes, corner: 5, relinkableFrom: true, relinkableTo: true, reshapable:true, adjusting: go.Link.Stretch},
-      
+    $(go.Link, 
+      {
+        routing: go.Link.AvoidsNodes, 
+        corner: 5, 
+        relinkableFrom: true, 
+        relinkableTo: true, 
+        reshapable: true, 
+        adjusting: go.Link.Stretch
+      },
       $(go.Shape, { stroke: "#6c757d", strokeWidth: 1.5 }),
-    $(go.Shape, { toArrow: "Standard", stroke: "#6c757d" }),
-      $(go.TextBlock, '.', {segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 20px sans-serif", stroke: "green", editable: true})
+      $(go.Shape, { fromArrow: "Standard", stroke: "#6c757d" }), // Flecha en el extremo 'from'
+      $(go.Shape, { toArrow: "Standard", stroke: "#6c757d" }), // Flecha en el extremo 'to'
+      $(go.TextBlock, 'Interfaz', { segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 20px sans-serif", stroke: "green", editable: true })
     )
   );
+  
+  
 
   this.diagram.linkTemplate.selectionAdornmentTemplate =
     $(go.Adornment, 'Link',
@@ -190,23 +184,11 @@ export class UmlComponentesComponent {
 
   // Define el modelo de datos inicial
   this.diagram.model = new go.GraphLinksModel([
-    { key: "Main", name: "Main", category: "main", interfaces: [
-        { name: "API" },
-        { name: "Configuración" }
-    ]},
-    { key: "Subsistema1", name: "Subsistema 1", category: "subsistema", interfaces: [
-        { name: "Interfaz1" },
-        { name: "Interfaz2" }
-    ]},
-    { key: "Subsistema2", name: "Subsistema 2", category: "subsistema", interfaces: [
-        { name: "Interfaz3" }
-    ]},
-    { key: "Subsistema3", name: "Subsistema 3", category: "subsistema", interfaces: [
-        { name: "Interfaz4" }
-    ]},
-    { key: "Subsistema4", name: "Subsistema 4", category: "subsistema", interfaces: [
-        { name: "Interfaz5" }
-    ]}
+    { key: "Main", name: "Main", category: "main"},
+    { key: "Subsistema1", name: "Subsistema 1", category: "subsistema"},
+    { key: "Subsistema2", name: "Subsistema 2", category: "subsistema"},
+    { key: "Subsistema3", name: "Subsistema 3", category: "subsistema"},
+    { key: "Subsistema4", name: "Subsistema 4", category: "subsistema"}
   ], [
     { from: "Main", to: "Subsistema1",category: 'asociar' },
     { from: "Main", to: "Subsistema2", category: 'asociar' },
@@ -234,8 +216,7 @@ initPalette() {
   this.palette.model = $(go.GraphLinksModel, {
     nodeDataArray: [
       { text: "Main", category: 'main', name: "Main" },
-      { text: "Subsistema", category: 'subsistema', name: "Subsistema" },
-      { text: "Interfaz", category: 'interface', name: "Interfaz genérica" },
+      { text: "Subsistema", category: 'subsistema', name: "Subsistema" }
     ]
   });
 }
