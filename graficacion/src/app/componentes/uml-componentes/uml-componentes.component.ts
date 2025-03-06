@@ -17,7 +17,7 @@ export class UmlComponentesComponent {
   private palette!: go.Palette;
   tipoRelacion: string = "";
 
-  constructor(private toastr: ToastrService){}
+  constructor(private toastr: ToastrService) { }
 
   ngOnInit() {
     this.initDiagram();
@@ -36,261 +36,235 @@ export class UmlComponentesComponent {
       'linkReshapingTool.isEnabled': true,
       'relinkingTool.isEnabled': true,
       'grid.visible': true,
+      'draggingTool.isGridSnapEnabled': true,
+      'draggingTool.dragsTree': true,
+      'draggingTool.isEnabled': true,
+      'layout': $(go.ForceDirectedLayout, {
+        // defaultSpringLength: 50,
+        // defaultElectricalCharge: 50,
+        // isRealtime: false
+      })
+    });
+    this.diagram.layout = $(go.LayeredDigraphLayout, {
+      direction: 0,
+      layerSpacing: 100,
+      columnSpacing: 50,
+      setsPortSpots: false,
+      isOngoing: false
     });
 
+    this.diagram.addDiagramListener("SelectionMoved", (e) => {
+      const selectedNodes = this.diagram.selection.toArray().filter(part => part instanceof go.Node) as go.Node[];
+      selectedNodes.forEach(node => {
+        const bounds = node.actualBounds;
+        this.diagram.nodes.each(otherNode => {
+          if (otherNode.actualBounds.intersects(bounds.x, bounds.y, bounds.width, bounds.height)) {
+            if (otherNode !== node && bounds.intersects(bounds.x, bounds.y, bounds.width, bounds.height)) {
+              node.move(new go.Point(otherNode.actualBounds.x + otherNode.actualBounds.width + 10, node.actualBounds.y));
+            }
+          }
+        });
+      });
+    });
     this.diagram.toolManager.linkingTool.archetypeLinkData = { category: 'normal' };
 
-    this.diagram.nodeTemplateMap.add("main",
-      $(go.Node, "Vertical",
-          {
-              locationSpot: go.Spot.Center,
-              selectionAdorned: true
-          },
-          $(go.Panel, "Auto",
-              $(go.Shape, "Rectangle", {
-                  fill: "#fff3cd",
-                  stroke: "#ffc107",
-                  strokeWidth: 3,
-                  height: 60,
-                  width: 100,
-                  
-              }),
-              $(go.TextBlock, {
-                  margin: 10,
-                  font: "bold 16px sans-serif",
-                  textAlign: "center",
-                  editable: true
-              }, new go.Binding("text", "name"))
-          ),
-          $(go.Panel, "Vertical",
-              { margin: 10 },
-              new go.Binding("itemArray", "interfaces"),
-              {
-                  itemTemplate: $(go.Panel, "Horizontal",
-                      { margin: 5 },
-                      $("Shape",
-                          {
-                              portId: "",
-                              figure: "Circle",
-                              fill: "#0dcaf0",
-                              stroke: null,
-                              width: 14,
-                              height: 14,
-                              fromLinkable: true,
-                              toLinkable: true
-                          }
-                      ),
-                      $(go.TextBlock,
-                          { margin: 2, font: "12px sans-serif", editable: true },
-                          new go.Binding("text", "name").makeTwoWay())
-                  )
-              }
-          )
-      )
-  );
 
-  this.diagram.nodeTemplateMap.add("subsistema",
-    $(go.Node, "Vertical",
+    this.diagram.nodeTemplateMap.add("subsistema",
+      $(go.Node, "Vertical",
         {
-            locationSpot: go.Spot.Center,
-            selectionAdorned: true
+          locationSpot: go.Spot.Center,
+          selectionAdorned: true,
+          resizable: true,
+          resizeObjectName: "SHAPE"
         },
         $(go.Panel, "Auto",
-            $(go.Shape, "Rectangle", {
-                fill: "#e2f0fb",
-                stroke: "#0d6efd",
-                strokeWidth: 3,
-                height: 60,
-                width: 100
-            }),
-            $(go.TextBlock, {
-                margin: 10,
-                font: "bold 16px sans-serif",
-                textAlign: "center",
-                editable: true
-            }, new go.Binding("text", "name").makeTwoWay())
+          $(go.Shape, "Rectangle", {
+            name: "SHAPE",
+            fill: "#e2f0fb",
+            stroke: "#0d6efd",
+            strokeWidth: 3,
+            height: 60,
+            width: 100
+          }),
+          $(go.TextBlock, {
+            margin: 10,
+            font: "bold 16px sans-serif",
+            textAlign: "center",
+            editable: true,
+            wrap: go.TextBlock.WrapFit,
+            width: 100
+          }, new go.Binding("text", "name").makeTwoWay())
         ),
         $(go.Panel, "Vertical",
-            { margin: 10 },
-            new go.Binding("itemArray", "interfaces"),
-            {
-                itemTemplate: $(go.Panel, "Horizontal",
-                    { margin: 5 },
-                    $("Shape",
-                        {
-                            portId: "",
-                            figure: "Circle",
-                            fill: "#0dcaf0",
-                            stroke: null,
-                            width: 14,
-                            height: 14,
-                            fromLinkable: true,
-                            toLinkable: true
-                        }
-                    ),
-                    $(go.TextBlock,
-                        { margin: 2, font: "12px sans-serif", editable: true },
-                        new go.Binding("text", "name").makeTwoWay())
-                )
-            }
+          { margin: 10 },
+          new go.Binding("itemArray", "interfaces"),
+          {
+            itemTemplate: $(go.Panel, "Horizontal",
+              { margin: 5 },
+              $("Shape",
+                {
+                  portId: "",
+                  figure: "Circle",
+                  fill: "#0dcaf0",
+                  stroke: null,
+                  width: 14,
+                  height: 14,
+                  fromLinkable: true,
+                  toLinkable: true
+                }
+              ),
+              $(go.TextBlock,
+                { margin: 2, font: "12px sans-serif", editable: true },
+                new go.Binding("text", "name").makeTwoWay())
+            )
+          }
         )
-    )
-);
-
-
-
-  // this.diagram.linkTemplate = $(go.Link,
-  //   { routing: go.Link.AvoidsNodes, adjusting: go.Link.Stretch, corner: 5, relinkableFrom: true, relinkableTo: true, reshapable: true },
-  //   $(go.Shape, { stroke: "#6c757d", strokeWidth: 1.5 }),
-  //   $(go.Shape, { toArrow: "Standard", stroke: "#6c757d" })
-  // );
-  this.diagram.linkTemplateMap.add('asociar',
-    $(go.Link, 
-      {
-        routing: go.Link.AvoidsNodes, 
-        corner: 5, 
-        relinkableFrom: true, 
-        relinkableTo: true, 
-        reshapable: true, 
-        adjusting: go.Link.Stretch
-      },
-      $(go.Shape, { stroke: "#6c757d", strokeWidth: 1.5 }),
-      $(go.Shape, { fromArrow: "Standard", stroke: "#6c757d" }), // Flecha en el extremo 'from'
-      $(go.Shape, { toArrow: "Standard", stroke: "#6c757d" }), // Flecha en el extremo 'to'
-      $(go.TextBlock, 'Interfaz', { segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 20px sans-serif", stroke: "green", editable: true })
-    )
-  );
-  
-  
-
-  this.diagram.linkTemplate.selectionAdornmentTemplate =
-    $(go.Adornment, 'Link',
-      $(go.Shape, // Reshape handle
-        {
-          isPanelMain: true,
-          stroke: "dodgerblue",
-          strokeWidth: 3
-        }),
-      $(go.Shape, "Diamond",
-        {
-          segmentIndex: 1,
-          segmentFraction: 0.5,
-          fill: "white",
-          stroke: "dodgerblue",
-          width: 10,
-          height: 10
-        })
+      )
+    );
+    this.diagram.nodeTemplateMap.add("circle",
+      $(go.Node, "Vertical",
+      $(go.Shape, "Circle", { fill: "gray", stroke: null, width: 30, height: 30, fromLinkable: true, toLinkable: true }),
+      $(go.TextBlock, { margin: 2, font: "15px sans-serif", editable: true }, new go.Binding("text", "name").makeTwoWay())
+      )
     );
 
-  // Define el modelo de datos inicial
-  this.diagram.model = new go.GraphLinksModel([
-    { key: "Main", name: "Main", category: "main"},
-    { key: "Subsistema1", name: "Subsistema 1", category: "subsistema"},
-    { key: "Subsistema2", name: "Subsistema 2", category: "subsistema"},
-    { key: "Subsistema3", name: "Subsistema 3", category: "subsistema"},
-    { key: "Subsistema4", name: "Subsistema 4", category: "subsistema"}
-  ], [
-    { from: "Main", to: "Subsistema1",category: 'asociar' },
-    { from: "Main", to: "Subsistema2", category: 'asociar' },
-    { from: "Subsistema3", to: "Main", category: 'asociar' },
-    { from: "Subsistema1", to: "Subsistema4", category: 'asociar' }
-  ]);
+    this.diagram.linkTemplateMap.add('asociar',
+      $(go.Link,
+        {
+          // routing: go.Link.Normal, 
+          routing: go.Link.AvoidsNodes,
+          corner: 5,
+          relinkableFrom: true,
+          relinkableTo: true,
+          reshapable: true,
+          adjusting: go.Link.Stretch
+        },
+        $(go.Shape, { stroke: "#6c757d", strokeWidth: 1.5 }),
+        $(go.Shape, { fromArrow: "Standard", stroke: "#6c757d" }),
+        $(go.Shape, { toArrow: "Standard", stroke: "#6c757d" }),
+        $(go.TextBlock, 'Interfaz', { segmentFraction: 0.5, segmentOffset: new go.Point(-20, -10), font: "bold 20px sans-serif", stroke: "green", editable: true, angle: 0 })
+      )
+    );
 
-  this.diagram.addDiagramListener("ExternalObjectsDropped", (e) => {
-    e.subject.each((part: go.Node) => {
-      if (part instanceof go.Node && part.category === "cu" && part.containingGroup === null) {
-        this.error();
-        this.diagram.remove(part);
-      }
+
+
+    this.diagram.linkTemplate.selectionAdornmentTemplate =
+      $(go.Adornment, 'Link',
+        $(go.Shape,
+          {
+            isPanelMain: true,
+            stroke: "dodgerblue",
+            strokeWidth: 3
+          }),
+        $(go.Shape, "Diamond",
+          {
+            segmentIndex: 1,
+            segmentFraction: 0.5,
+            fill: "white",
+            stroke: "dodgerblue",
+            width: 10,
+            height: 10
+          })
+      );
+
+    this.diagram.model = new go.GraphLinksModel([
+      { key: "Main", name: "Main", category: "subsistema" },
+      { key: "Subsistema1", name: "Subsistema 1", category: "subsistema" },
+      { key: "Subsistema2", name: "Subsistema 2", category: "subsistema" },
+      { key: "Subsistema3", name: "Subsistema 3", category: "subsistema" },
+      { key: "Subsistema4", name: "Subsistema 4", category: "subsistema" }
+    ], [
+      { from: "Main", to: "Subsistema1", category: 'asociar' },
+      { from: "Main", to: "Subsistema2", category: 'asociar' },
+      { from: "Main", to: "Subsistema3", category: 'asociar' },
+      { from: "Main", to: "Subsistema4", category: 'asociar' }
+    ]);
+
+  }
+
+  initPalette() {
+    const $ = go.GraphObject.make;
+
+    this.palette = $(go.Palette, 'myPaletteDiv', {
+      nodeTemplateMap: this.diagram.nodeTemplateMap,
     });
-  });
-}
 
-initPalette() {
-  const $ = go.GraphObject.make;
-
-  this.palette = $(go.Palette, 'myPaletteDiv', {
-    nodeTemplateMap: this.diagram.nodeTemplateMap,
-  });
-
-  this.palette.model = $(go.GraphLinksModel, {
-    nodeDataArray: [
-      { text: "Main", category: 'main', name: "Main" },
-      { text: "Subsistema", category: 'subsistema', name: "Subsistema" }
-    ]
-  });
-}
-
-// Guardar el diagrama en formato JSON
-guardarDiagrama() {
-  if (!this.diagram) return;
-  const jsonData = this.diagram.model.toJson();
-  localStorage.setItem("diagramaGuardado", jsonData);
-
-  this.guardadoConExito();
-}
-
-// Cargar el diagrama desde JSON
-cargarDiagrama() {
-  const jsonData = localStorage.getItem("diagramaGuardado");
-  if (jsonData) {
-    this.diagram.model = go.Model.fromJson(jsonData);
-
-  } else {
-    this.errorCargar();
+    this.palette.model = $(go.GraphLinksModel, {
+      nodeDataArray: [
+        { text: "Subsistema", category: 'subsistema', name: "Subsistema" },
+        { text: "Interfaz", category: 'circle', name: "Función" }
+      ]
+    });
   }
-}
 
-eliminarElemento() {
-  const selectedParts = this.diagram.selection;
-  this.diagram.startTransaction('delete');
-  selectedParts.each((part) => {
-    this.diagram.remove(part);
-  });
+  guardarDiagrama() {
+    if (!this.diagram) return;
+    const jsonData = this.diagram.model.toJson();
+    localStorage.setItem("diagramaGuardado", jsonData);
 
-  this.diagram.commitTransaction('delete');
-}
-
-guardarComoImagen(diagram: go.Diagram) {
-  const imageData = this.diagram.makeImageData({ scale: 1, background: "white", returnType: "image/png" });
-
-  if (typeof imageData !== "string") {
-    console.error("Error: No se pudo generar la imagen del diagrama");
-    return;
+    this.guardadoConExito();
   }
-  const pdf = new jsPDF("landscape", "mm", "a4");
-  pdf.addImage(imageData, "PNG", 10, 10, 280, 150); // Adjust position & size
-  pdf.save("diagrama.pdf");
-}
 
+  cargarDiagrama() {
+    const jsonData = localStorage.getItem("diagramaGuardado");
+    if (jsonData) {
+      this.diagram.model = go.Model.fromJson(jsonData);
 
-
-conectar() {
-  if (!this.diagram) return;
-  const model = this.diagram.model as go.GraphLinksModel;
-  const selectedNodes = this.diagram.selection.toArray().filter(node => node instanceof go.Node) as go.Node[];
-  if (selectedNodes.length !== 2) {
-    console.error("Error: Debe seleccionar exactamente dos nodos para conectar");
-    return;
+    } else {
+      this.errorCargar();
+    }
   }
-  const fromNode = selectedNodes[0].data.key;
-  const toNode = selectedNodes[1].data.key;
-  model.addLinkData({ from: fromNode, to: toNode, category: 'asociar' });
-}
 
-guardadoConExito() {
-  this.toastr.success('Diagrama Guardado con Éxito', 'Nice!');
-}
+  eliminarElemento() {
+    const selectedParts = this.diagram.selection;
+    this.diagram.startTransaction('delete');
+    selectedParts.each((part) => {
+      this.diagram.remove(part);
+    });
 
-cargadoConExito() {
-  this.toastr.success('Diagrama Guardado con Éxito', 'Nice');
-}
+    this.diagram.commitTransaction('delete');
+  }
 
-error() {
-  this.toastr.error('Los nodos no pueden estar fuera del grupo', 'Error');
-}
+  guardarComoImagen(diagram: go.Diagram) {
+    const imageData = this.diagram.makeImageData({ scale: 1, background: "white", returnType: "image/png" });
 
-errorCargar() {
-  this.toastr.error('No hay un diagrama guardado', 'Error');
-}
+    if (typeof imageData !== "string") {
+      console.error("Error: No se pudo generar la imagen del diagrama");
+      return;
+    }
+    const pdf = new jsPDF("landscape", "mm", "a4");
+    pdf.addImage(imageData, "PNG", 10, 10, 280, 150);
+    pdf.save("diagrama.pdf");
+  }
+
+
+
+  conectar() {
+    if (!this.diagram) return;
+    const model = this.diagram.model as go.GraphLinksModel;
+    const selectedNodes = this.diagram.selection.toArray().filter(node => node instanceof go.Node) as go.Node[];
+    if (selectedNodes.length !== 2) {
+      console.error("Error: Debe seleccionar exactamente dos nodos para conectar");
+      return;
+    }
+    const fromNode = selectedNodes[0].data.key;
+    const toNode = selectedNodes[1].data.key;
+    model.addLinkData({ from: fromNode, to: toNode, category: 'asociar' });
+  }
+
+  guardadoConExito() {
+    this.toastr.success('Diagrama Guardado con Éxito', 'Nice!');
+  }
+
+  cargadoConExito() {
+    this.toastr.success('Diagrama Guardado con Éxito', 'Nice');
+  }
+
+  error() {
+    this.toastr.error('Los nodos no pueden estar fuera del grupo', 'Error');
+  }
+
+  errorCargar() {
+    this.toastr.error('No hay un diagrama guardado', 'Error');
+  }
 }
