@@ -1,5 +1,7 @@
 import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import * as go from 'gojs';
+import jsPDF from 'jspdf';
+
 
 @Component({
   selector: 'app-uml-secuencias',
@@ -12,6 +14,7 @@ export class UmlSecuenciasComponent implements AfterViewInit {
   @ViewChild('paletteDiv') paletteDiv!: ElementRef;
   private myDiagram!: go.Diagram;
   private myPalette!: go.Palette;
+  diagram!: go.Diagram;
 
   ngAfterViewInit() {
     this.initDiagram();
@@ -53,7 +56,7 @@ export class UmlSecuenciasComponent implements AfterViewInit {
       $(
         go.Panel, "Auto", { name: "HEADER" },
         $(go.Shape, "Rectangle", { fill: "#bbdefb", stroke: null }),
-        $(go.TextBlock, { margin: 5, font: "10pt sans-serif" }, new go.Binding("text"))
+        $(go.TextBlock, { editable:true, margin: 5, font: "10pt sans-serif" }, new go.Binding("text"))
       ),
       $(
         go.Shape,
@@ -90,24 +93,35 @@ export class UmlSecuenciasComponent implements AfterViewInit {
       )
     );
 
-    // Plantilla para las conexiones (flechas) con texto editable
+    // Plantilla para las conexiones (flechas) con texto editable y placeholder
     this.myDiagram.linkTemplate = $(
       go.Link,
       { curve: go.Link.JumpOver, toShortLength: 2, relinkableFrom: true, relinkableTo: true },
       $(go.Shape, { stroke: "black" }),
-      $(go.Shape, { toArrow: "Standard", stroke: "black" }),
+      $(go.Shape, { toArrow: "OpenTriangle", stroke: "black" }),
       $(go.Panel, "Auto",
         $(go.Shape, "Rectangle", { fill: "white", stroke: "black" }),
-        $(go.TextBlock,
+        $(go.TextBlock, 'escribe aqui...',
           {
+            
             font: "9pt sans-serif",
             margin: 2,
-            editable: true
+            editable: true,
+            segmentIndex: 0,
+            segmentOffset: new go.Point(0, -20) 
           },
-          new go.Binding("text").makeTwoWay()
+          new go.Binding("text", "text").makeTwoWay()
         )
       )
     );
+
+    // Evento para evitar que los enlaces queden vacíos después de editarse
+    this.myDiagram.addDiagramListener("TextEdited", (e) => {
+      const tb = e.subject as go.TextBlock;
+      if (tb && tb.text.trim() === "") {
+        this.myDiagram.model.setDataProperty(tb.part!.data, "text", "Escribe aquí...");
+      }
+    });
 
     this.loadModel();
   }
@@ -151,7 +165,37 @@ export class UmlSecuenciasComponent implements AfterViewInit {
     this.myDiagram.model = go.Model.fromJson(modelData);
   }
 
-  saveModel() {
-    console.log(this.myDiagram.model.toJson());
+
+  // Guardar el diagrama en formato JSON
+  guardarDiagrama() {
+    if(!this.myDiagram.model) return;
+    const jsonData = this.myDiagram.model.toJson();
+    localStorage.setItem("secuencia",jsonData);
+    console.log("Diagrama guardado");
   }
+
+  // Cargar el diagrama desde JSON
+  cargarDiagrama() {
+    const jsonData = localStorage.getItem("secuencia");
+    if(jsonData) {
+      this.myDiagram.model = go.Model.fromJson(jsonData);
+      
+    }else{
+      console.log("No hay diagrama guardado");
+    }
+  }
+  guardarComoImagen(diagram: go.Diagram) {
+
+ 
+      const imageData = this.myDiagram.makeImageData({ scale:1, background: "white", returnType: "image/png"});
+  
+      if(typeof imageData !== "string"){
+        console.error("Error: No se pudo generar la imagen del diagrama");
+        return;
+      }
+      const pdf = new jsPDF("landscape", "mm", "a4");
+      pdf.addImage(imageData, "PNG", 10, 10, 280, 150); // Adjust position & size
+      pdf.save("diagrama.pdf");
+    }
+
 }
