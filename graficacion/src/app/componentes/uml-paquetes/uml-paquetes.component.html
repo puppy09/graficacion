@@ -1,1 +1,22 @@
-<p>uml-paquetes works!</p>
+<div class="container">
+    <div #myPaletteDiv class="palette-container"></div>
+    <div class="diagram-wrapper">
+      <div #myDiagramDiv class="diagram-container"></div>
+      <div class="controls">
+        <input #levelSlider type="range" min="0" max="5" value="0">
+        <textarea id="mySavedModel" class="model-textarea"></textarea>
+        <div class="buttons"
+          ><button (click)="setLinkType('include')">Modo Include</button>
+          <button (click)="setLinkType('access')">Modo Access</button>
+          <button (click)="setLinkType('dashed')">Modo Línea Punteada</button>
+          <button (click)="deleteSelection()">Eliminar Seleccionado</button>
+          <button (click)="save()">Guardar</button>
+          <button (click)="load()">Cargar</button>
+          <button (click)="toggleRelationshipMode()">
+            {{ relationshipMode ? 'Salir Modo Relación' : 'Modo Relación' }}
+          </button>
+      </div>
+    </div>
+  </div>
+</div>
+  
