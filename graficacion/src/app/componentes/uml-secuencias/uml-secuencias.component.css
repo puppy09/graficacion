@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+}
+
+.palette {
+  width: 150px;
+  height: 400px;
+  border: 1px solid #ccc;
+  margin-right: 10px;
+}
+
+.diagram {
+  flex-grow: 1;
+  height: 400px;
+  border: 1px solid #ccc;
+}
+.botonesDiagrama{
+  display: flex;
+  justify-content: space-between;
+  margin: 10px;
+}
