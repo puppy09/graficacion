@@ -1,1 +1,36 @@
-<p>uml-clases works!</p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagrama de Clases UML</title>
+    <link rel="stylesheet" href="./uml-clases.component.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Diagrama de Clases UML</h1>
+    <div class="diagram-container">
+        <div id="myPaletteDiv"></div>
+        <div id="myDiagramDiv"></div>
+    </div>
+    <div class="button-container">
+        
+        <button (click)="cerouno()">0 : 1</button>
+        <button (click)="ceromuchos()">0 : *</button>
+        <button (click)="unouno()">1 : 1</button>
+        <button (click)="unomuchos()">1 : *</button>
+        <button (click)="mn()">m : n</button>
+        <button (click)="agregacion()">Agregacion</button>
+        <button (click)="composicion()">Composicion</button>
+        <button (click)="implementacion()">implementacion</button>
+        <button (click)="herencia()">Herencia</button>
+        
+        <button (click)="guardarDiagrama()">Guardar Diagrama</button>
+        <button (click)="cargarDiagrama()">Cargar Diagrama</button>
+        <button (click)="eliminarElemento()">Eliminar Elemento</button>
+        <button (click)="guardarComoImagen()">Guardar PDF</button>
+    </div>
+</body>
+</html>

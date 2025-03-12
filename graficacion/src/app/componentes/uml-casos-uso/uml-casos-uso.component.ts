@@ -39,8 +39,6 @@ export class UmlCasosUsoComponent {
       'grid.visible': true,
     });
 
-    
-
     this.diagram.toolManager.linkingTool.archetypeLinkData = { category: 'normal' };
     
     this.diagram.groupTemplate = $(go.Group, "Auto", { isSubGraphExpanded: true, movable: true, handlesDragDropForMembers: true, computesBoundsAfterDrag: true, background: "transparent", resizable: true,
