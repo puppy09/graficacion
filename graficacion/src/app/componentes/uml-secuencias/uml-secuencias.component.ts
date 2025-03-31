@@ -2,7 +2,6 @@ import { Component, ElementRef, AfterViewInit, ViewChild } from '@angular/core';
 import * as go from 'gojs';
 import jsPDF from 'jspdf';
 
-
 @Component({
   selector: 'app-uml-secuencias',
   standalone: true,
@@ -56,7 +55,7 @@ export class UmlSecuenciasComponent implements AfterViewInit {
       $(
         go.Panel, "Auto", { name: "HEADER" },
         $(go.Shape, "Rectangle", { fill: "#bbdefb", stroke: null }),
-        $(go.TextBlock, { editable:true, margin: 5, font: "10pt sans-serif" }, new go.Binding("text"))
+        $(go.TextBlock, { editable: true, margin: 5, font: "10pt sans-serif" }, new go.Binding("text"))
       ),
       $(
         go.Shape,
@@ -69,7 +68,7 @@ export class UmlSecuenciasComponent implements AfterViewInit {
     this.myDiagram.nodeTemplate = $(
       go.Node, "Auto",
       {
-        locationSpot: go.Spot.Top,
+        locationSpot: go.Spot.Center,
         movable: true,
         groupable: true,
         dragComputation: (node: go.Part, pt: go.Point) => {
@@ -80,14 +79,26 @@ export class UmlSecuenciasComponent implements AfterViewInit {
       new go.Binding("group", "group"),
       $(
         go.Panel, "Vertical",
+        // Puerto superior
+        $(go.Shape, "Circle",
+          {
+            width: 6, height: 6, fill: "blue", strokeWidth: 0, cursor: "pointer",
+            portId: "TOP_PORT",
+            fromLinkable: true, toLinkable: true,
+            fromSpot: go.Spot.Top, toSpot: go.Spot.Top,
+            fromMaxLinks: 1, toMaxLinks: 1 // Opcional: limita a un link por puerto
+          }
+        ),
         $(go.Shape, "Rectangle", { fill: "white", stroke: "black", width: 12, height: 30 }),
         $(go.Shape, "Rectangle", { fill: "black", width: 12, height: 3 }),
+        // Puerto inferior
         $(go.Shape, "Circle",
           {
             width: 6, height: 6, fill: "red", strokeWidth: 0, cursor: "pointer",
-            portId: "",
+            portId: "BOTTOM_PORT",
             fromLinkable: true, toLinkable: true,
-            fromSpot: go.Spot.Bottom, toSpot: go.Spot.Top
+            fromSpot: go.Spot.Bottom, toSpot: go.Spot.Bottom,
+            fromMaxLinks: 1, toMaxLinks: 1 // Opcional: limita a un link por puerto
           }
         )
       )
@@ -96,24 +107,69 @@ export class UmlSecuenciasComponent implements AfterViewInit {
     // Plantilla para las conexiones (flechas) con texto editable y placeholder
     this.myDiagram.linkTemplate = $(
       go.Link,
-      { curve: go.Link.JumpOver, toShortLength: 2, relinkableFrom: true, relinkableTo: true },
+      {
+        curve: go.Link.JumpOver,
+        toShortLength: 2,
+        relinkableFrom: true,
+        relinkableTo: true,
+        routing: go.Link.Normal, // Asegura que los links respeten los puertos
+        fromPortId: "", // Se asignará dinámicamente
+        toPortId: ""    // Se asignará dinámicamente
+      },
       $(go.Shape, { stroke: "black" }),
       $(go.Shape, { toArrow: "OpenTriangle", stroke: "black" }),
       $(go.Panel, "Auto",
         $(go.Shape, "Rectangle", { fill: "white", stroke: "black" }),
         $(go.TextBlock, 'escribe aqui...',
           {
-            
             font: "9pt sans-serif",
             margin: 2,
             editable: true,
             segmentIndex: 0,
-            segmentOffset: new go.Point(0, -20) 
+            segmentOffset: new go.Point(0, -20)
           },
           new go.Binding("text", "text").makeTwoWay()
         )
       )
     );
+
+    // Listener para asignar puertos dinámicamente según la dirección del link
+    this.myDiagram.addDiagramListener("LinkDrawn", (e) => {
+      const link = e.subject as go.Link;
+      const fromNode = link.fromNode;
+      const toNode = link.toNode;
+      if (fromNode && toNode) {
+        const fromY = fromNode.location.y;
+        const toY = toNode.location.y;
+        if (fromY < toY) {
+          // Link va hacia abajo: sale del puerto inferior
+          link.fromPortId = "BOTTOM_PORT";
+          link.toPortId = "TOP_PORT";
+        } else {
+          // Link va hacia arriba: sale del puerto superior
+          link.fromPortId = "TOP_PORT";
+          link.toPortId = "BOTTOM_PORT";
+        }
+      }
+    });
+
+    // Listener para reasignar puertos al relinkear
+    this.myDiagram.addDiagramListener("LinkRelinked", (e) => {
+      const link = e.subject as go.Link;
+      const fromNode = link.fromNode;
+      const toNode = link.toNode;
+      if (fromNode && toNode) {
+        const fromY = fromNode.location.y;
+        const toY = toNode.location.y;
+        // if (fromY < toY) {
+        //   link.fromPortId = "BOTTOM_PORT";
+        //   link.toPortId = "TOP_PORT";
+        // } else {
+        //   link.fromPortId = "TOP_PORT";
+        //   link.toPortId = "BOTTOM_PORT";
+        // }
+      }
+    });
 
     // Evento para evitar que los enlaces queden vacíos después de editarse
     this.myDiagram.addDiagramListener("TextEdited", (e) => {
@@ -154,48 +210,44 @@ export class UmlSecuenciasComponent implements AfterViewInit {
         { key: -10, group: "Renee", loc: "360 180" }
       ],
       linkDataArray: [
-        { from: -5, to: -6, text: "order food" },
-        { from: -5, to: -7, text: "serve drinks" },
-        { from: -6, to: -8, text: "finish cooking" },
-        { from: -8, to: -9, text: "serve food" },
-        { from: -9, to: -10, text: "pay" }
+        { from: -5, to: -6, text: "order food", fromPortId: "BOTTOM_PORT", toPortId: "TOP_PORT" },
+        { from: -5, to: -7, text: "serve drinks", fromPortId: "BOTTOM_PORT", toPortId: "TOP_PORT" },
+        { from: -6, to: -8, text: "finish cooking", fromPortId: "BOTTOM_PORT", toPortId: "TOP_PORT" },
+        { from: -8, to: -9, text: "serve food", fromPortId: "BOTTOM_PORT", toPortId: "TOP_PORT" },
+        { from: -9, to: -10, text: "pay", fromPortId: "BOTTOM_PORT", toPortId: "TOP_PORT" }
       ]
     };
 
     this.myDiagram.model = go.Model.fromJson(modelData);
   }
 
-
   // Guardar el diagrama en formato JSON
   guardarDiagrama() {
-    if(!this.myDiagram.model) return;
+    if (!this.myDiagram.model) return;
     const jsonData = this.myDiagram.model.toJson();
-    localStorage.setItem("secuencia",jsonData);
+    localStorage.setItem("secuencia", jsonData);
     console.log("Diagrama guardado");
   }
 
   // Cargar el diagrama desde JSON
   cargarDiagrama() {
     const jsonData = localStorage.getItem("secuencia");
-    if(jsonData) {
+    if (jsonData) {
       this.myDiagram.model = go.Model.fromJson(jsonData);
-      
-    }else{
+    } else {
       console.log("No hay diagrama guardado");
     }
   }
+
   guardarComoImagen(diagram: go.Diagram) {
+    const imageData = this.myDiagram.makeImageData({ scale: 1, background: "white", returnType: "image/png" });
 
- 
-      const imageData = this.myDiagram.makeImageData({ scale:1, background: "white", returnType: "image/png"});
-  
-      if(typeof imageData !== "string"){
-        console.error("Error: No se pudo generar la imagen del diagrama");
-        return;
-      }
-      const pdf = new jsPDF("landscape", "mm", "a4");
-      pdf.addImage(imageData, "PNG", 10, 10, 280, 150); // Adjust position & size
-      pdf.save("diagrama.pdf");
+    if (typeof imageData !== "string") {
+      console.error("Error: No se pudo generar la imagen del diagrama");
+      return;
     }
-
+    const pdf = new jsPDF("landscape", "mm", "a4");
+    pdf.addImage(imageData, "PNG", 10, 10, 280, 150); // Adjust position & size
+    pdf.save("diagrama.pdf");
+  }
 }
