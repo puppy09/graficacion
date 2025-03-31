@@ -3,21 +3,24 @@
 }
 
 .palette {
-  width: 150px;
-  height: 400px;
+  width: 10%;
+  height: 80vh;
   border: 1px solid #ccc;
   margin-right: 10px;
 }
 
 .diagram {
   flex-grow: 1;
-  height: 400px;
+  width: 85%;
+  height: 80vh;
   border: 1px solid #ccc;
 }
 .botonesDiagrama{
   display: flex;
   justify-content: space-between;
-  margin: 10px;
+  margin-left: 10vw;
+  margin-right: 10vw;
+  margin-top: 1vh;
 }
 button {
   padding: 10px 15px;
