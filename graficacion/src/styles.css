@@ -1,4 +1,7 @@
 @import 'ngx-toastr/toastr';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 /* Container for all toasts */
 .toast-container {
     position: fixed;
