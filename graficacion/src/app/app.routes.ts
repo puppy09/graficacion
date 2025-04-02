@@ -8,11 +8,11 @@ import { UmlSecuenciasComponent } from './componentes/uml-secuencias/uml-secuenc
 import { MenuProyectosComponent } from './componentes/menu-proyectos/menu-proyectos.component';
 
 export const routes: Routes = [
-    {path:'', component:MenuPrincipalComponent},
+    {path:'diagramas', component:MenuPrincipalComponent},
     {path:'casosuso',component:UmlCasosUsoComponent},
     {path:'componentes', component: UmlComponentesComponent},
     {path:'clases',component:UmlClasesComponent},
     {path:'paquetes',component:UmlPaquetesComponent},
     {path:'secuencias',component:UmlSecuenciasComponent},
-    {path:'proyectos', component: MenuProyectosComponent}
+    {path:'', component: MenuProyectosComponent}
 ];

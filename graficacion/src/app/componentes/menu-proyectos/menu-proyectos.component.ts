@@ -9,7 +9,12 @@ import { ProyectosService } from '../../services/proyectos/proyectos.service';
 })
 export class MenuProyectosComponent {
     proyectos: any={};
+    nombre:any;
+    descripcion:any;
    constructor(private proyectosSvc: ProyectosService){}
+   ngOnInit(){
+    this.getProyectos();
+   }
    getProyectos(): void{
       this.proyectosSvc.getProyectos().subscribe(
         (data)=>{
@@ -20,5 +25,8 @@ export class MenuProyectosComponent {
           console.log(errorMessage);
         }
       )
+   }
+   postProyectos():void{
+
    }
 }
