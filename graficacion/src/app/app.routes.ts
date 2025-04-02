@@ -5,6 +5,7 @@ import { UmlComponentesComponent } from './componentes/uml-componentes/uml-compo
 import { UmlClasesComponent } from './componentes/uml-clases/uml-clases.component';
 import { UmlPaquetesComponent } from './componentes/uml-paquetes/uml-paquetes.component';
 import { UmlSecuenciasComponent } from './componentes/uml-secuencias/uml-secuencias.component';
+import { MenuProyectosComponent } from './componentes/menu-proyectos/menu-proyectos.component';
 
 export const routes: Routes = [
     {path:'', component:MenuPrincipalComponent},
@@ -12,5 +13,6 @@ export const routes: Routes = [
     {path:'componentes', component: UmlComponentesComponent},
     {path:'clases',component:UmlClasesComponent},
     {path:'paquetes',component:UmlPaquetesComponent},
-    {path:'secuencias',component:UmlSecuenciasComponent}
+    {path:'secuencias',component:UmlSecuenciasComponent},
+    {path:'proyectos', component: MenuProyectosComponent}
 ];

@@ -7,7 +7,7 @@ import { proyectos } from '../../interfaces/proyectos/proyecto.interface';
 @Injectable({
   providedIn: 'root'
 })
-export class MainService {
+export class ProyectosService {
 
   constructor(private http:HttpClient) { }
   private apiUrl = environment.apiUrl;
