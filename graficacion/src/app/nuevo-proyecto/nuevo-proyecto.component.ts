@@ -22,7 +22,7 @@ export class NuevoProyectoComponent {
 
   constructor( private dialogRef: MatDialogRef<NuevoProyectoComponent>, private proyectosSvc: ProyectosService, private toastr: ToastrService){}
 
-
+/*Hola*/
   ngOnInit(){
     this.nuevoProyecto = new FormGroup({
         nombre: new FormControl('',Validators.required),
