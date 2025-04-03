@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { ProyectosService } from '../../services/proyectos/proyectos.service';
+import {MatDialog, MatDialogModule} from '@angular/material/dialog'
+import { NuevoProyectoComponent } from '../../nuevo-proyecto/nuevo-proyecto.component';
 @Component({
   selector: 'app-menu-proyectos',
   standalone: true,
@@ -11,7 +13,7 @@ export class MenuProyectosComponent {
     proyectos: any={};
     nombre:any;
     descripcion:any;
-   constructor(private proyectosSvc: ProyectosService){}
+   constructor(private proyectosSvc: ProyectosService, private dialog: MatDialog){}
    ngOnInit(){
     this.getProyectos();
    }
@@ -26,7 +28,8 @@ export class MenuProyectosComponent {
         }
       )
    }
-   postProyectos():void{
-
+   OpenModal(){
+    const dialogRef = this.dialog.open(NuevoProyectoComponent,{
+      width:'400 px'});
    }
 }
