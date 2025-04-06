@@ -36,12 +36,12 @@ export class MenuProyectosComponent {
     const dialogRef = this.dialog.open(NuevoProyectoComponent,{
       width:'400 px'});
 
-     /* dialogRef.afterClosed().subscribe((result)=>{
+      dialogRef.afterClosed().subscribe((result)=>{
         if(result){
-          //this.getProyectos();+
+          this.getProyectos();
           this.router.navigate(['proyectos']);
         }
-      })*/
+      })
    }
    // Calcula el número total de páginas
   get totalPages(): number {

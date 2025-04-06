@@ -16,10 +16,10 @@ export class VersionesService {
        return this.http.get<versiones|versiones[]>(`${this.apiUrl}/versiones/${proyecto}/${diagrama}`);
     }
    
-    postVersiones(proyecto:number, diagrama: number, version:string,contenido:JSON):Observable<versiones|versiones[]>{
+    postVersiones(proyecto:number, diagrama: number, version:string,contenido:any):Observable<versiones|versiones[]>{
        return this.http.post<versiones|versiones[]>(`${this.apiUrl}/crearversion`, {proyecto, diagrama, version, contenido});
     }
-    updateVersion(proyecto: number,diagrama:number, version: string, contenido:JSON):Observable<versiones|versiones[]>{
+    updateVersion(proyecto: number,diagrama:number, version: string, contenido:any):Observable<versiones|versiones[]>{
        return this.http.put<versiones|versiones[]>(`${this.apiUrl}/version/${proyecto}/${diagrama}`,{version, contenido});
     }
 }

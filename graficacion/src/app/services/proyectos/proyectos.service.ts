@@ -16,8 +16,8 @@ export class ProyectosService {
     return this.http.get<proyectos|proyectos[]>(`${this.apiUrl}/proyectos`);
   }
 
-  postProyectos(nombre: string, descripcion: string):Observable<proyectos|proyectos[]>{
-    return this.http.post<proyectos|proyectos[]>(`${this.apiUrl}/crearproyecto`, {nombre, descripcion});
+  postProyectos(nombre: string, descripcion: string):Observable<proyectos>{
+    return this.http.post<proyectos>(`${this.apiUrl}/crearproyecto`, {nombre, descripcion});
   }
   updateProyectos(id_proyecto: number,nombre: string, descripcion: string):Observable<proyectos|proyectos[]>{
     return this.http.put<proyectos|proyectos[]>(`${this.apiUrl}/proyecto/${id_proyecto}`,{nombre, descripcion});

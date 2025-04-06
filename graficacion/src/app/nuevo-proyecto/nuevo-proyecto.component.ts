@@ -39,11 +39,35 @@ export class NuevoProyectoComponent {
       formData.descripcion
     ).subscribe(response =>{
       this.toastr.success('Proyecto Creado con Éxito', 'Nice!');
-      this.dialogRef.close();
-      this.router.navigate(['proyectos']);
+      const newProjectID = response.id_proyecto;
+      this.dialogRef.close(newProjectID);
+      this.crearVersiones(newProjectID);
+      console.log("ID DEL PROYECTO CREADO", newProjectID);
+     // this.router.navigate(['proyectos']);
+
+
+    
+     
     });
   }
+  crearVersiones(proyecto: number){
+    const initialVersion = "1.0 - Version Inicial";
+      const defaultJson = { nodos: [], conexiones: [] }; // customize as needed
+      const diagramas = [
+        { id_diagrama: 1 },
+        { id_diagrama: 2 },
+        { id_diagrama: 3 },
+        { id_diagrama: 4 },
+        { id_diagrama: 5 }
+      ];
+      diagramas.forEach(diagrama => {
+        this.verSvc.postVersiones(proyecto, diagrama.id_diagrama, initialVersion, defaultJson)
+          .subscribe(() => {
+            console.log(`Versión inicial creada para ${diagrama}`);
+          });
+      });
 
+  }
   onClose(){
     this.dialogRef.close();
   }
