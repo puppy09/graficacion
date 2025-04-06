@@ -3,6 +3,7 @@ import { ProyectosService } from '../../services/proyectos/proyectos.service';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog'
 import { NuevoProyectoComponent } from '../../nuevo-proyecto/nuevo-proyecto.component';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-menu-proyectos',
   standalone: true,
@@ -16,7 +17,7 @@ export class MenuProyectosComponent {
     itemsPorPagina = 3; // Número de proyectos por página
     paginaActual = 1;   // Página actual
     descripcion:any;
-   constructor(private proyectosSvc: ProyectosService, private dialog: MatDialog){}
+   constructor(private proyectosSvc: ProyectosService, private dialog: MatDialog, private router: Router){}
    ngOnInit(){
     this.getProyectos();
    }
@@ -34,6 +35,13 @@ export class MenuProyectosComponent {
    OpenModal(){
     const dialogRef = this.dialog.open(NuevoProyectoComponent,{
       width:'400 px'});
+
+     /* dialogRef.afterClosed().subscribe((result)=>{
+        if(result){
+          //this.getProyectos();+
+          this.router.navigate(['proyectos']);
+        }
+      })*/
    }
    // Calcula el número total de páginas
   get totalPages(): number {

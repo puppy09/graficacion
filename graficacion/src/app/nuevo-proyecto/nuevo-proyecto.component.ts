@@ -5,6 +5,8 @@ import { ToastrService } from 'ngx-toastr';
 import { MatDialogActions, MatDialogRef } from '@angular/material/dialog';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import { MatDialogContent } from '@angular/material/dialog';
+import { VersionesService } from '../services/versiones/versiones.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-nuevo-proyecto',
@@ -20,7 +22,7 @@ export class NuevoProyectoComponent {
   descripcion: any;
  
 
-  constructor( private dialogRef: MatDialogRef<NuevoProyectoComponent>, private proyectosSvc: ProyectosService, private toastr: ToastrService){}
+  constructor(private router: Router, private verSvc: VersionesService, private dialogRef: MatDialogRef<NuevoProyectoComponent>, private proyectosSvc: ProyectosService, private toastr: ToastrService){}
 
 /*Hola*/
   ngOnInit(){
@@ -37,7 +39,9 @@ export class NuevoProyectoComponent {
       formData.descripcion
     ).subscribe(response =>{
       this.toastr.success('Proyecto Creado con Éxito', 'Nice!');
-    })
+      this.dialogRef.close();
+      this.router.navigate(['proyectos']);
+    });
   }
 
   onClose(){
