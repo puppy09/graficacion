@@ -43,6 +43,14 @@ export class MenuProyectosComponent {
         }
       })
    }
+
+   Ingresar(id: number){
+    localStorage.setItem('proyectoId', id.toString());
+    console.log('Proyecto guardado en local storage: ', id);
+    this.router.navigate(["diagramas"]);
+   }
+
+   
    // Calcula el número total de páginas
   get totalPages(): number {
     return Math.ceil(this.proyectos.length / this.itemsPorPagina);
