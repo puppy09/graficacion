@@ -4,6 +4,7 @@ import jsPDF from "jspdf";
 import html2canvas from 'html2canvas';
 import { catchError, groupBy } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { VersionesService } from '../../services/versiones/versiones.service';
 
 @Component({
   selector: 'app-uml-casos-uso',
@@ -17,7 +18,7 @@ export class UmlCasosUsoComponent {
   private palette!: go.Palette;
   tipoRelacion: string = "";
 
-  constructor(private toastr: ToastrService){}
+  constructor(private verSvc: VersionesService,  private toastr: ToastrService){}
 
 
   ngOnInit() {
@@ -171,8 +172,18 @@ export class UmlCasosUsoComponent {
     if(!this.diagram) return;
     const jsonData = this.diagram.model.toJson();
     localStorage.setItem("diagramaGuardado",jsonData);
-
-    this.guardadoConExito();
+    let proyecto = localStorage.getItem('proyectoId');
+    //let contenido = localStorage.getItem("diagramaGuardado");
+    
+    this.verSvc.updateVersion(proyecto, 5, jsonData).subscribe(
+      (data)=>{
+        this.guardadoConExito();
+      },(error)=>{
+        this.toastr.error(`Error al guardar ${error}`, 'Error');
+      }
+    )
+   // this.guardadoConExito();
+    
   }
 
   // Cargar el diagrama desde JSON
@@ -265,6 +276,10 @@ export class UmlCasosUsoComponent {
 
   errorCargar(){
     this.toastr.error('No hay un diagrama guardado', 'Error');
+  }
+
+  guardarNuevaVersion(){
+
   }
   
 }
