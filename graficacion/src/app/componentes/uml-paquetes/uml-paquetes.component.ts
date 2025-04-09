@@ -1,5 +1,7 @@
 import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import * as go from 'gojs';
+import { VersionesService } from '../../services/versiones/versiones.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-diagram-package',
@@ -17,6 +19,8 @@ export class UmlPaquetesComponent implements AfterViewInit {
   public relationshipMode: boolean = false;
   tipoRelacion: string = "";
   packageCounter: number = 0;
+
+  constructor(private VerSvc: VersionesService, private toastr: ToastrService){}
 
   ngAfterViewInit(): void {
     this.initDiagram();
@@ -274,11 +278,29 @@ initDiagram(): void {
   save(): void {
     (document.getElementById('mySavedModel') as HTMLTextAreaElement).value = this.myDiagram.model.toJson();
     this.myDiagram.isModified = false;
+
+    const jsonData = this.myDiagram.model.toJson();
+    localStorage.setItem("diagramaGuardado",jsonData);
+    let proyecto = localStorage.getItem('proyectoId');
+    //let contenido = localStorage.getItem("diagramaGuardado");
+    
+    this.VerSvc.updateVersion(proyecto, 3, jsonData).subscribe(
+      (data)=>{
+        this.guardadoConExito();
+      },(error)=>{
+        this.toastr.error(`Error al guardar ${error}`, 'Error');
+      }
+    )
   }
 
   load(): void {
     this.myDiagram.model = go.Model.fromJson((document.getElementById('mySavedModel') as HTMLTextAreaElement).value);
   }
+
+  guardadoConExito(){
+    this.toastr.success('Diagrama Guardado con Éxito', 'Nice!');
+  }
+
 
   toggleRelationshipMode(): void {
     this.relationshipMode = !this.relationshipMode;
