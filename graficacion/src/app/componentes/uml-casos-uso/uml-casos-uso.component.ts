@@ -270,5 +270,16 @@ export class UmlCasosUsoComponent {
     );
   }
   
+  cargarVersion(event: any): void{
+    const version = event.target.value;
+    console.log(version);
+    this.verSvc.getVersion(version).subscribe(
+      (data)=>{
+        this.diagram.model = go.Model.fromJson(data.json);
+      },(error)=>{
+          this.toastr.error('No hay un diagrama guardado', 'Error');
+      }
+    )
+  }
 }
 

@@ -22,4 +22,8 @@ export class VersionesService {
     updateVersion(proyecto: any,diagrama:number, contenido:any):Observable<versiones|versiones[]>{
        return this.http.put<versiones|versiones[]>(`${this.apiUrl}/version/${proyecto}/${diagrama}`,{contenido});
     }
+
+    getVersion(version:any):Observable<versiones>{
+      return this.http.get<versiones>(`${this.apiUrl}/version/${version}`);
+    }
 }

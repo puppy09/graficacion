@@ -28,10 +28,10 @@
         <button (click)="cargarDiagrama()">Cargar Diagrama</button>
         <button (click)="eliminarElemento()">Eliminar Elemento</button>
         <button (click)="guardarComoImagen(diagram)">Guardar PDF</button>
-        <select name="versiones" id="versiones">
+        <select name="versiones" id="versiones" (change)="cargarVersion($event)">
             @if (versiones && versiones.length > 0){
                 @for(version of versiones; track $index){
-                    <option value=>{{ version.version }}</option>
+                    <option value={{version.id_version}}>{{ version.version }}</option>
                 }
             }
         </select>
