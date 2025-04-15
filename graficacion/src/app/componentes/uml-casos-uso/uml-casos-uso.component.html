@@ -28,6 +28,13 @@
         <button (click)="cargarDiagrama()">Cargar Diagrama</button>
         <button (click)="eliminarElemento()">Eliminar Elemento</button>
         <button (click)="guardarComoImagen(diagram)">Guardar PDF</button>
+        <select name="versiones" id="versiones">
+            @if (versiones && versiones.length > 0){
+                @for(version of versiones; track $index){
+                    <option value=>{{ version.version }}</option>
+                }
+            }
+        </select>
     </div>
 </body>
 </html>

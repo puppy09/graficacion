@@ -17,13 +17,14 @@ export class UmlCasosUsoComponent {
   diagram!: go.Diagram;
   private palette!: go.Palette;
   tipoRelacion: string = "";
-
+  versiones: any = {};
   constructor(private verSvc: VersionesService,  private toastr: ToastrService){}
 
 
   ngOnInit() {
     this.initDiagram();
     this.initPalette();
+    this.getVersiones();
   }
 
   title = 'pruebago';
@@ -208,32 +209,6 @@ export class UmlCasosUsoComponent {
   }
 
   guardarComoImagen(diagram: go.Diagram) {
-
-  /*  const minWidth = 585;
-    const minHeight= 842;
-
-    const div = diagram.div as HTMLDivElement;
-
-    html2canvas(div, { backgroundColor: "#ffffff" }).then((canvas)=>{
-      const imageData = this.diagram.makeImageData({scale: 2, background: "white"});
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "pt",
-        format: [minWidth, minHeight],
-      });
-
-      const contentWidth = canvas.width;
-      const contentHeight = canvas.height;
-
-    // Calcular el centro del PDF
-      const offsetX = (minWidth - contentWidth) / 2;
-      const offsetY = (minHeight - contentHeight) / 2;
-
-    // Si el diagrama es más pequeño que el tamaño mínimo, centramos sin escalar
-      pdf.addImage(imageData, "PNG", Math.max(0, offsetX), Math.max(0, offsetY), contentWidth, contentHeight);
-
-      pdf.save("diagrama.pdf");
-    });*/
     const imageData = this.diagram.makeImageData({ scale:1, background: "white", returnType: "image/png"});
 
     if(typeof imageData !== "string"){
@@ -280,6 +255,19 @@ export class UmlCasosUsoComponent {
 
   guardarNuevaVersion(){
 
+  }
+
+  getVersiones(){
+    let proyecto = localStorage.getItem("proyectoId");
+    this.verSvc.getVersiones(proyecto, 5).subscribe(
+      (data) =>{
+        this.versiones=data;
+        console.log(this.versiones);
+      },
+      (error)=>{
+        this.toastr.error('Error obteniendo versiones', 'Error');
+      }
+    );
   }
   
 }

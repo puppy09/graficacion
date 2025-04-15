@@ -12,7 +12,7 @@ export class VersionesService {
   constructor(private http:HttpClient) { }
    private apiUrl = environment.apiUrl;
 
-    getVersiones(proyecto:number, diagrama:number):Observable<versiones|versiones[]>{
+    getVersiones(proyecto:any, diagrama:number):Observable<versiones|versiones[]>{
        return this.http.get<versiones|versiones[]>(`${this.apiUrl}/versiones/${proyecto}/${diagrama}`);
     }
    
