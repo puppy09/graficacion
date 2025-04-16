@@ -172,11 +172,11 @@ export class UmlCasosUsoComponent {
   guardarDiagrama() {
     if(!this.diagram) return;
     const jsonData = this.diagram.model.toJson();
-    localStorage.setItem("diagramaGuardado",jsonData);
-    let proyecto = localStorage.getItem('proyectoId');
+    //localStorage.setItem("diagramaGuardado",jsonData);
+    //let proyecto = localStorage.getItem('proyectoId');
     //let contenido = localStorage.getItem("diagramaGuardado");
-    
-    this.verSvc.updateVersion(proyecto, 5, jsonData).subscribe(
+    let version = localStorage.getItem('version');
+    this.verSvc.updateVersion(version, jsonData).subscribe(
       (data)=>{
         this.guardadoConExito();
       },(error)=>{
@@ -263,6 +263,11 @@ export class UmlCasosUsoComponent {
       (data) =>{
         this.versiones=data;
         console.log(this.versiones);
+
+        if (this.versiones.length > 0) {
+          const firstVersionId = this.versiones[0].id_version;
+          this.cargarVersion({ target: { value: firstVersionId } }); // simulate event
+        }
       },
       (error)=>{
         this.toastr.error('Error obteniendo versiones', 'Error');
@@ -276,6 +281,9 @@ export class UmlCasosUsoComponent {
     this.verSvc.getVersion(version).subscribe(
       (data)=>{
         this.diagram.model = go.Model.fromJson(data.json);
+        localStorage.setItem("version",version);
+
+        
       },(error)=>{
           this.toastr.error('No hay un diagrama guardado', 'Error');
       }

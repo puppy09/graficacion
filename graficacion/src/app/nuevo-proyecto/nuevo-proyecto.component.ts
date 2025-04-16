@@ -52,7 +52,10 @@ export class NuevoProyectoComponent {
   }
   crearVersiones(proyecto: number){
     const initialVersion = "1.0 - Version Inicial";
-      const defaultJson = { nodos: [], conexiones: [] }; // customize as needed
+      const defaultJson = {  "class": "GraphLinksModel", "nodeDataArray": [
+      {"key":"Sistema","isGroup":true}
+      ] }; // customize as needed
+      
       const diagramas = [
         { id_diagrama: 1 },
         { id_diagrama: 2 },

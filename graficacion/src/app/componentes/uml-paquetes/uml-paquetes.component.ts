@@ -280,11 +280,11 @@ initDiagram(): void {
     this.myDiagram.isModified = false;
 
     const jsonData = this.myDiagram.model.toJson();
-    localStorage.setItem("diagramaGuardado",jsonData);
-    let proyecto = localStorage.getItem('proyectoId');
+    //localStorage.setItem("diagramaGuardado",jsonData);
+    //let proyecto = localStorage.getItem('proyectoId');
     //let contenido = localStorage.getItem("diagramaGuardado");
-    
-    this.VerSvc.updateVersion(proyecto, 3, jsonData).subscribe(
+    const version = localStorage.getItem('version');
+    this.VerSvc.updateVersion(version, jsonData).subscribe(
       (data)=>{
         this.guardadoConExito();
       },(error)=>{
