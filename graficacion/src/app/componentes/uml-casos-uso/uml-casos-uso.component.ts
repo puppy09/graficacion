@@ -259,7 +259,7 @@ export class UmlCasosUsoComponent {
   guardarNuevaVersion(){
 
     const dialogRef = this.dialog.open(NuevaVersionComponent,{
-          width:'400 px'});
+          width:'500 px'});
               dialogRef.afterClosed().subscribe(versionName => {
                 if (versionName) {
                   const jsonDiagram = this.diagram.model.toJson();
@@ -288,7 +288,7 @@ export class UmlCasosUsoComponent {
 
         if (this.versiones.length > 0) {
           const firstVersionId = this.versiones[0].id_version;
-          this.cargarVersion({ target: { value: firstVersionId } }); // simulate event
+          this.cargarVersion({ target: { value: firstVersionId } });
         }
       },
       (error)=>{

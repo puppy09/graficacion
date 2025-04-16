@@ -2,6 +2,8 @@ import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import * as go from 'gojs';
 import { VersionesService } from '../../services/versiones/versiones.service';
 import { ToastrService } from 'ngx-toastr';
+import { MatDialog } from '@angular/material/dialog';
+import { NuevaVersionComponent } from '../nueva-version/nueva-version.component';
 
 @Component({
   selector: 'app-diagram-package',
@@ -19,11 +21,16 @@ export class UmlPaquetesComponent implements AfterViewInit {
   public relationshipMode: boolean = false;
   tipoRelacion: string = "";
   packageCounter: number = 0;
-
-  constructor(private VerSvc: VersionesService, private toastr: ToastrService){}
+  versiones: any = {};
+  constructor(private VerSvc: VersionesService, private toastr: ToastrService, private verSvc: VersionesService, private dialog: MatDialog){}
 
   ngAfterViewInit(): void {
     this.initDiagram();
+//S    this.getVersiones();
+  }
+
+  ngOnInit(){
+    this.getVersiones();
   }
 
  // ...existing code...
@@ -364,6 +371,60 @@ initDiagram(): void {
     }
   }
 
+  getVersiones(){
+    let proyecto = localStorage.getItem("proyectoId");
+    this.verSvc.getVersiones(proyecto, 3).subscribe(
+      (data) =>{
+        this.versiones=data;
+        console.log(this.versiones);
+
+        if (this.versiones.length > 0) {
+          const firstVersionId = this.versiones[0].id_version;
+          this.cargarVersion({ target: { value: firstVersionId } });
+        }
+      },
+      (error)=>{
+        this.toastr.error('Error obteniendo versiones', 'Error');
+      }
+    );
+  }
+  cargarVersion(event: any): void{
+      const version = event.target.value;
+      console.log(version);
+      this.verSvc.getVersion(version).subscribe(
+        (data)=>{
+          this.myDiagram.model = go.Model.fromJson(data.json);
+          localStorage.setItem("version",version);
+  
+          
+        },(error)=>{
+            this.toastr.error('No hay un diagrama guardado', 'Error');
+        }
+      )
+    }
+
+    guardarNuevaVersion(){
+    
+        const dialogRef = this.dialog.open(NuevaVersionComponent,{
+              width:'500 px'});
+                  dialogRef.afterClosed().subscribe(versionName => {
+                    if (versionName) {
+                      const jsonDiagram = this.myDiagram.model.toJson();
+                      const id_proyecto = localStorage.getItem("proyectoId");
+      
+                      this.verSvc.postVersiones(id_proyecto, 3, versionName.version, jsonDiagram).subscribe(
+                        (nueva) => {
+                          this.getVersiones();
+                          this.toastr.success('Nueva versión creada', 'Éxito');
+                        },
+                        (error) => {
+                          this.toastr.error('Error al crear la versión', 'Error');
+                        }
+                      );
+                    }
+                  });
+                
+      }
 }
 
 
