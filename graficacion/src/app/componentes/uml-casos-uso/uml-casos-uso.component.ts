@@ -5,6 +5,9 @@ import html2canvas from 'html2canvas';
 import { catchError, groupBy } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { VersionesService } from '../../services/versiones/versiones.service';
+import { MatDialog } from '@angular/material/dialog';
+import { NuevaVersionComponent } from '../nueva-version/nueva-version.component';
+import { Route, Router } from '@angular/router';
 
 @Component({
   selector: 'app-uml-casos-uso',
@@ -18,7 +21,7 @@ export class UmlCasosUsoComponent {
   private palette!: go.Palette;
   tipoRelacion: string = "";
   versiones: any = {};
-  constructor(private verSvc: VersionesService,  private toastr: ToastrService){}
+  constructor(private verSvc: VersionesService,  private toastr: ToastrService, private dialog: MatDialog, private router:Router){}
 
 
   ngOnInit() {
@@ -255,6 +258,25 @@ export class UmlCasosUsoComponent {
 
   guardarNuevaVersion(){
 
+    const dialogRef = this.dialog.open(NuevaVersionComponent,{
+          width:'400 px'});
+              dialogRef.afterClosed().subscribe(versionName => {
+                if (versionName) {
+                  const jsonDiagram = this.diagram.model.toJson();
+                  const id_proyecto = localStorage.getItem("proyectoId");
+  
+                  this.verSvc.postVersiones(id_proyecto, 5, versionName.version, jsonDiagram).subscribe(
+                    (nueva) => {
+                      this.getVersiones();
+                      this.toastr.success('Nueva versión creada', 'Éxito');
+                    },
+                    (error) => {
+                      this.toastr.error('Error al crear la versión', 'Error');
+                    }
+                  );
+                }
+              });
+            
   }
 
   getVersiones(){
