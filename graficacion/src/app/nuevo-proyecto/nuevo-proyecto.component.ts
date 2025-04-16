@@ -52,24 +52,66 @@ export class NuevoProyectoComponent {
   }
   crearVersiones(proyecto: number){
     const initialVersion = "1.0 - Version Inicial";
-      const defaultJson = {  "class": "GraphLinksModel", "nodeDataArray": [
+      const defaultJsonCU = {  "class": "GraphLinksModel", "nodeDataArray": [
       {"key":"Sistema","isGroup":true}
       ] }; // customize as needed
       
-      const diagramas = [
-        { id_diagrama: 1 },
-        { id_diagrama: 2 },
-        { id_diagrama: 3 },
-        { id_diagrama: 4 },
-        { id_diagrama: 5 }
-      ];
-      diagramas.forEach(diagrama => {
-        this.verSvc.postVersiones(proyecto, diagrama.id_diagrama, initialVersion, defaultJson)
-          .subscribe(() => {
-            console.log(`Versión inicial creada para ${diagrama}`);
-          });
-      });
+      const defaultJsonSecuencias = { "class": "GraphLinksModel",
+        "nodeDataArray": [
+      {"key":"Fred","text":"Fred: Patron","isGroup":true,"loc":"0 0","duration":300},
+      {"key":"Bob","text":"Bob: Waiter","isGroup":true,"loc":"120 0","duration":300},
+      {"key":"Hank","text":"Hank: Cook","isGroup":true,"loc":"240 0","duration":300},
+      {"key":"Renee","text":"Renee: Cashier","isGroup":true,"loc":"360 0","duration":300},
+      {"key":-5,"group":"Bob","loc":"120 30"},
+      {"key":-6,"group":"Hank","loc":"240 60"},
+      {"key":-7,"group":"Fred","loc":"0 90"},
+      {"key":-8,"group":"Bob","loc":"120 120"},
+      {"key":-9,"group":"Fred","loc":"0 150"},
+      {"key":-10,"group":"Renee","loc":"360 180"}
+      ],
+        "linkDataArray": [
+      {"from":-5,"to":-6,"text":"order food","fromPortId":"BOTTOM_PORT","toPortId":"TOP_PORT"},
+      {"from":-5,"to":-7,"text":"serve drinks","fromPortId":"BOTTOM_PORT","toPortId":"TOP_PORT"},
+      {"from":-6,"to":-8,"text":"finish cooking","fromPortId":"BOTTOM_PORT","toPortId":"TOP_PORT"},
+      {"from":-8,"to":-9,"text":"serve food","fromPortId":"BOTTOM_PORT","toPortId":"TOP_PORT"},
+      {"from":-9,"to":-10,"text":"pay","fromPortId":"BOTTOM_PORT","toPortId":"TOP_PORT"}
+      ]}
 
+      const defaultJsonPaquetes = { "class": "GraphLinksModel",
+          "nodeDataArray": [],
+          "linkDataArray": []}
+
+      const defaultJsonComponentes =
+        { "class": "GraphLinksModel",
+          "nodeDataArray": [
+        {"key":"Main","name":"Main","category":"subsistema"},
+        {"key":"Subsistema1","name":"Subsistema 1","category":"subsistema"},
+        {"key":"Subsistema2","name":"Subsistema 2","category":"subsistema"},
+        {"key":"Subsistema3","name":"Subsistema 3","category":"subsistema"},
+        {"key":"Subsistema4","name":"Subsistema 4","category":"subsistema"}
+        ],
+          "linkDataArray": [
+        {"from":"Main","to":"Subsistema1","category":"asociar"},
+        {"from":"Main","to":"Subsistema2","category":"asociar"},
+        {"from":"Main","to":"Subsistema3","category":"asociar"},
+        {"from":"Main","to":"Subsistema4","category":"asociar"}
+        ]}
+
+      this.verSvc.postVersiones(proyecto,2,initialVersion,defaultJsonComponentes).subscribe(()=>{
+        console.log('Version inicial creada de componentes');
+      })
+
+      this.verSvc.postVersiones(proyecto,3,initialVersion,defaultJsonPaquetes).subscribe(()=>{
+        console.log('Version inicial creada de Paquetes');
+      })
+
+      this.verSvc.postVersiones(proyecto,4,initialVersion,defaultJsonSecuencias).subscribe(()=>{
+        console.log('Version inicial de Secuencias');
+      })
+
+      this.verSvc.postVersiones(proyecto,5,initialVersion,defaultJsonCU).subscribe(()=>{
+        console.log('Version inicial de CU')
+      })
   }
   onClose(){
     this.dialogRef.close();
