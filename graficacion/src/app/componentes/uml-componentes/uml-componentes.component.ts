@@ -4,6 +4,10 @@ import jsPDF from "jspdf";
 import html2canvas from 'html2canvas';
 import { catchError, groupBy } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
+import { VersionesService } from '../../services/versiones/versiones.service';
+import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { NuevaVersionComponent } from '../nueva-version/nueva-version.component';
 
 @Component({
   selector: 'app-uml-componentes',
@@ -16,12 +20,14 @@ export class UmlComponentesComponent {
   diagram!: go.Diagram;
   private palette!: go.Palette;
   tipoRelacion: string = "";
+  versiones: any = {};
 
-  constructor(private toastr: ToastrService) { }
+  constructor(private toastr: ToastrService, private dialog: MatDialog, private router:Router, private verSvc: VersionesService) { }
 
   ngOnInit() {
     this.initDiagram();
     this.initPalette();
+    this.getVersiones();
   }
 
   title = 'pruebago';
@@ -201,7 +207,14 @@ export class UmlComponentesComponent {
     if (!this.diagram) return;
     const jsonData = this.diagram.model.toJson();
     localStorage.setItem("diagramaGuardado", jsonData);
-
+    let version = localStorage.getItem('version');
+    this.verSvc.updateVersion(version, jsonData).subscribe(
+      (data)=>{
+        this.guardadoConExito();
+      },(error)=>{
+        this.toastr.error(`Error al guardar ${error}`, 'Error');
+      }
+    )
     this.guardadoConExito();
   }
 
@@ -267,4 +280,56 @@ export class UmlComponentesComponent {
   errorCargar() {
     this.toastr.error('No hay un diagrama guardado', 'Error');
   }
+
+  getVersiones(){
+    let proyecto = localStorage.getItem("proyectoId");
+    this.verSvc.getVersiones(proyecto, 2).subscribe(
+      (data) =>{
+        this.versiones=data;
+        console.log(this.versiones);
+
+        if (this.versiones.length > 0) {
+          const firstVersionId = this.versiones[0].id_version;
+          this.cargarVersion({ target: { value: firstVersionId } });
+        }
+      },
+      (error)=>{
+        this.toastr.error('Error obteniendo versiones', 'Error');
+      }
+    );
+  }
+
+    cargarVersion(event: any): void{
+      const version = event.target.value;
+      console.log(version);
+      this.verSvc.getVersion(version).subscribe(
+        (data)=>{
+          this.diagram.model = go.Model.fromJson(data.json);
+          localStorage.setItem("version",version);
+  
+          
+        },(error)=>{
+            this.toastr.error('No hay un diagrama guardado', 'Error');
+        }
+      )
+    }
+
+      guardarNuevaVersion(){
+        const dialogRef = this.dialog.open(NuevaVersionComponent,{
+        width:'500 px'});
+        dialogRef.afterClosed().subscribe(versionName => {
+        if (versionName) {
+          const jsonDiagram = this.diagram.model.toJson();
+          const id_proyecto = localStorage.getItem("proyectoId");
+          this.verSvc.postVersiones(id_proyecto, 2, versionName.version, jsonDiagram).subscribe(
+          (nueva) => {
+            this.getVersiones();
+            this.toastr.success('Nueva versión creada', 'Éxito');
+          },
+          (error) => {
+            this.toastr.error('Error al crear la versión', 'Error');
+          });
+        }});       
+      }
+    
 }
