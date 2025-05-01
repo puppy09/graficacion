@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
 export class MenuProyectosComponent {
     proyectos: any={};
     nombre:any;
-    itemsPorPagina = 3; // Número de proyectos por página
+    itemsPorPagina = 9; // Número de proyectos por página
     paginaActual = 1;   // Página actual
     descripcion:any;
    constructor(private proyectosSvc: ProyectosService, private dialog: MatDialog, private router: Router){}
@@ -25,6 +25,7 @@ export class MenuProyectosComponent {
       this.proyectosSvc.getProyectos().subscribe(
         (data)=>{
           this.proyectos = data;
+          this.proyectos.reverse(); // Invertir el orden de los proyectos
           console.log(this.proyectos);
         },(error)=>{
           const errorMessage = error.error?.message || 'Error al obtener proyectos';
