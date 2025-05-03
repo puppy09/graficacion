@@ -35,7 +35,7 @@ export class MenuProyectosComponent {
    }
    OpenModal(){
     const dialogRef = this.dialog.open(NuevoProyectoComponent,{
-      width:'400 px'});
+      width:'800 px'});
 
       dialogRef.afterClosed().subscribe((result)=>{
         if(result){
@@ -51,7 +51,7 @@ export class MenuProyectosComponent {
     this.router.navigate(["diagramas"]);
    }
 
-   
+
    // Calcula el número total de páginas
   get totalPages(): number {
     return Math.ceil(this.proyectos.length / this.itemsPorPagina);

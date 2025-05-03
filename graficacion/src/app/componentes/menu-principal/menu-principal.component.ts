@@ -3,6 +3,7 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import {MatDialog, MatDialogModule} from '@angular/material/dialog'
 // import { NuevoProyectoComponent } from '../../nuevo-proyecto/nuevo-proyecto.component';
 import { CommonModule } from '@angular/common';
+import { VersionModalComponent } from '../modal/version-modal/version-modal.component';
 @Component({
   selector: 'app-menu-principal',
   standalone: true,
@@ -11,9 +12,9 @@ import { CommonModule } from '@angular/common';
   styleUrl: './menu-principal.component.css'
 })
 export class MenuPrincipalComponent {
-  
+
   constructor(private route: ActivatedRoute, private router: Router, private dialog: MatDialog) {}
-  
+
   iraCU(){
     this.router.navigate(['casosuso']);
   }
@@ -31,9 +32,11 @@ export class MenuPrincipalComponent {
     this.router.navigate(['secuencias']);
   }
   crearProyecto(){
-     const dialogRef = this.dialog.open(MenuPrincipalComponent,{
-          width:'400 px'});
-    
+     const dialogRef = this.dialog.open(VersionModalComponent,{
+      height: '600px',
+      width: '1200px',
+          });
+
           dialogRef.afterClosed().subscribe(()=>{
             if(1==1){
               this.router.navigate(['proyectos']);
