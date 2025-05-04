@@ -17,7 +17,18 @@ export class ModalVersionesServicesService {
         console.log("proyecto");
          return this.http.get<modalVersion|modalVersion[]>(`${this.apiUrl}/versiones/${proyecto}`);
       }
+      postVersiones(id_proyecto:any, dia_secuencias:any, dia_componentes:any,dia_cu:any,dia_paquetes:any, dia_clases:any):Observable<any>{
+        console.log("id_proyecto");
+        console.log(id_proyecto);
+        console.log(dia_secuencias);
+        console.log(dia_componentes);
+        console.log(dia_cu);
+        console.log(dia_paquetes);
+        console.log(dia_clases);
+        console.log("id_proyecto");
+        return this.http.post<any>(`${this.apiUrl}/crear/proyecto/bp`, {id_proyecto, dia_secuencias, dia_componentes,dia_cu,dia_paquetes,dia_clases});
+      }
 }
 
 
-// asi esta mi service segun yo esta 
+// asi esta mi service segun yo esta

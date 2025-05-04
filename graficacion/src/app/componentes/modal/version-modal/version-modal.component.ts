@@ -29,7 +29,31 @@ ngOnInit(){
 
 }
   SubmitVersion(){
+    const id_proyecto = localStorage.getItem("proyectoId");
+    if (!id_proyecto) {
+      console.error('No se encontró el ID del proyecto en localStorage');
+      return;
+    }
+    console.log("id_proyecto");
+    console.log(id_proyecto);
     console.log(this.versionesSelected);
+    this.modlv.postVersiones(id_proyecto, this.versionesSelected[3],this.versionesSelected[1],
+      this.versionesSelected[4],this.versionesSelected[2],this.versionesSelected[0]
+
+    ).subscribe(
+      (data) => {
+        console.log("versiones");
+        console.log("proyecto creado");
+        console.log(data);
+        this.allVersiones = data;
+        console.log(this.allVersiones);
+      },
+      (error) => {
+        const errorMessage = error.error?.message || 'Error al obtener versiones';
+        console.log("tuve un error");
+        console.log(errorMessage);
+      }
+    );
 
   }
 
