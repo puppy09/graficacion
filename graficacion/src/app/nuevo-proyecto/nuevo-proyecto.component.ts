@@ -97,9 +97,10 @@ export class NuevoProyectoComponent {
         {"from":"Main","to":"Subsistema4","category":"asociar"}
         ]}
 
-      const defaultJsonClases={ "class": "GraphLinksModel", "nodeDataArray": [
-        {"key":"Sistema","isGroup":true}
-      ]}
+      const defaultJsonClases={ "class": "GraphLinksModel",
+        "nodeDataArray": [{"key":1,"name":"ClaseA","properties":[{"name":"atributo1","type":"string","visibility":"+"}],"methods":[{"name":"metodo1","type":"void","visibility":"+"}]}],
+        "linkDataArray": []}
+      
       this.verSvc.postVersiones(proyecto,2,initialVersion,defaultJsonComponentes).subscribe(()=>{
         console.log('Version inicial creada de componentes');
       })

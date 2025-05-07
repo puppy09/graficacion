@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 import * as go from 'gojs';
 import jsPDF from "jspdf";
 import { ToastrService } from 'ngx-toastr';
+import { VersionesService } from '../../services/versiones/versiones.service';
+import { MatDialog } from '@angular/material/dialog';
+import { NuevaVersionComponent } from '../nueva-version/nueva-version.component';
 
 @Component({
   selector: 'app-uml-clases',
@@ -12,16 +15,17 @@ export class UmlClasesComponent {
   diagram!: go.Diagram;
   private palette!: go.Palette;
   tipoRelacion: string = "";
-
+  versiones: any = {};
   // Declarar propertyTemplate y methodTemplate como propiedades de la clase
   private propertyTemplate!: go.Panel;
   private methodTemplate!: go.Panel;
 
-  constructor(private toastr: ToastrService) {}
+  constructor(private toastr: ToastrService, private verSvc: VersionesService,private dialog: MatDialog) {}
 
   ngOnInit() {
     this.initDiagram();
     this.initPalette();
+    this.getVersiones();
   }
 
   initDiagram() {
@@ -715,7 +719,54 @@ export class UmlClasesComponent {
     const jsonData = this.diagram.model.toJson();
     localStorage.setItem("diagramaGuardado", jsonData);
     this.toastr.success('Diagrama Guardado con Éxito', 'Éxito');
+    let version = localStorage.getItem('version');
+    this.verSvc.updateVersion(version, jsonData).subscribe(
+      (data)=>{
+        this.toastr.success('Diagrama Guardado con Éxito', 'Nice!');
+      },(error)=>{
+        this.toastr.error(`Error al guardar ${error}`, 'Error');
+      }
+    )
   }
+
+  guardarNuevaVersion(){
+  
+        const dialogRef = this.dialog.open(NuevaVersionComponent,{
+        width:'500 px'});
+        dialogRef.afterClosed().subscribe(versionName => {
+        if (versionName) {
+          const jsonDiagram = this.diagram.model.toJson();
+          const id_proyecto = localStorage.getItem("proyectoId");
+    
+          this.verSvc.postVersiones(id_proyecto, 1, versionName.version, jsonDiagram).subscribe(
+          (nueva) => {
+            this.getVersiones();
+            this.toastr.success('Nueva versión creada', 'Éxito');
+          },
+          (error) => {
+            this.toastr.error('Error al crear la versión', 'Error');
+          });
+        }});          
+      }
+    
+      getVersiones(){
+        let proyecto = localStorage.getItem("proyectoId");
+        this.verSvc.getVersiones(proyecto, 1).subscribe(
+          (data) =>{
+            this.versiones=data;
+            console.log(this.versiones);
+    
+            if (this.versiones.length > 0) {
+              const firstVersionId = this.versiones[0].id_version;
+              console.log("Primera Version",firstVersionId);
+              this.cargarVersion({ target: { value: firstVersionId } });
+            }
+          },
+          (error)=>{
+            this.toastr.error('Error obteniendo versiones', 'Error');
+          }
+        );
+      }
 
   cargarDiagrama() {
     const jsonData = localStorage.getItem("diagramaGuardado");
@@ -726,6 +777,19 @@ export class UmlClasesComponent {
       this.toastr.error('No hay un diagrama guardado', 'Error');
     }
   }
+
+  cargarVersion(event: any): void{
+        const version = event.target.value;
+        console.log(version);
+        this.verSvc.getVersion(version).subscribe(
+          (data)=>{
+            this.diagram.model = go.Model.fromJson(data.json);
+            localStorage.setItem("version",version);
+          },(error)=>{
+              this.toastr.error('No hay un diagrama guardado', 'Error');
+          }
+        )
+      }
 
   eliminarElemento() {
     const selectedParts = this.diagram.selection;
