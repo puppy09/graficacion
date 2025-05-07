@@ -34,6 +34,18 @@
   }
 
 }
+<div>
+  <p>Credenciales para BDD</p>
+  <label for="">bddHost</label>
+  <input type="text" [(ngModel)]="bddHost" class="border-2 border-gray-300 rounded-md p-2 mb-4" placeholder="Host de la base de datos" />
+  <label for="">bddUser</label>
+  <input type="text" [(ngModel)]="bddUser" class="border-2 border-gray-300 rounded-md p-2 mb-4" placeholder="Usuario de la base de datos" />
+  <label for="">bddPass</label>
+  <input type="text" [(ngModel)]="bddPass" class="border-2 border-gray-300 rounded-md p-2 mb-4" placeholder="Contraseña de la base de datos" />
+</div>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+  <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+</div>
 <button class=" ml-6 mt-6 w-[80%] px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition" (click)="SubmitVersion()">
   crear
 </button>

@@ -117,6 +117,7 @@ export class NuevoProyectoComponent {
         console.log('Version inicial de CU')
       })
       this.verSvc.postVersiones(proyecto,1,initialVersion,defaultJsonClases).subscribe(()=>{
+        console.log(defaultJsonClases)
         console.log('Version creada de Clases')
       })
   }

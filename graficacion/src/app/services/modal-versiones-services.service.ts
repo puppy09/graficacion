@@ -17,7 +17,7 @@ export class ModalVersionesServicesService {
         console.log("proyecto");
          return this.http.get<modalVersion|modalVersion[]>(`${this.apiUrl}/versiones/${proyecto}`);
       }
-      postVersiones(proyecto:any, secuencias:any, componentes:any,cu:any,paquetes:any, clases:any):Observable<any>{
+      postVersiones(proyecto:any, secuencias:any, componentes:any,cu:any,paquetes:any, clases:any, bddHost:any, bddUser:any, bddPass:any):Observable<any>{
         console.log("id_proyecto");
         console.log(proyecto);
         console.log(secuencias);
@@ -26,7 +26,7 @@ export class ModalVersionesServicesService {
         console.log(paquetes);
         console.log(clases);
         console.log("id_proyecto");
-        return this.http.post<any>(`${this.apiUrl}/crear/proyecto/bp`, {proyecto, secuencias, clases,cu,paquetes,componentes});
+        return this.http.post<any>(`${this.apiUrl}/crear/proyecto/bp`, {proyecto, secuencias, clases,cu,paquetes,componentes, bdd_host:bddHost, bdd_user:bddUser, bdd_contra:bddPass});
       }
 }
 

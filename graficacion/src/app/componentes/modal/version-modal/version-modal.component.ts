@@ -17,6 +17,11 @@ export class VersionModalComponent {
 allVersiones: any;
 diagramas: any= ["diagrama de clases", "diagrama de componentes", "diagrama de paquetes", "diagrama de secuencias", "diagrama de casos de uso"];
 versionesSelected: Number[] = [];
+bddHost = '';
+bddUser = '';
+bddPass = '';
+graphModel = {}; // tu modelo GraphLinksModel
+paquetesGraph = {}; // tu modelo de paquetes
 constructor(private modlv: ModalVersionesServicesService) { }
 // constructor(private modlv: modalVersion) { }
 ngOnInit(){
@@ -38,7 +43,7 @@ ngOnInit(){
     console.log(id_proyecto);
     console.log(this.versionesSelected);
     this.modlv.postVersiones(id_proyecto, this.versionesSelected[3],this.versionesSelected[1],
-      this.versionesSelected[4],this.versionesSelected[2],this.versionesSelected[0]
+      this.versionesSelected[4],this.versionesSelected[2],this.versionesSelected[0], this.bddHost, this.bddUser, this.bddPass
 
     ).subscribe(
       (data) => {
