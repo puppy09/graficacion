@@ -6,12 +6,14 @@ import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { NuevaVersionComponent } from '../nueva-version/nueva-version.component';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-uml-secuencias',
   standalone: true,
   templateUrl: './uml-secuencias.component.html',
-  styleUrls: ['./uml-secuencias.component.css']
+  styleUrls: ['./uml-secuencias.component.css'],
+  imports:[NavbarComponent]
 })
 export class UmlSecuenciasComponent implements AfterViewInit {
   @ViewChild('diagramDiv') diagramDiv!: ElementRef;

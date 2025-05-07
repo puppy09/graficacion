@@ -8,11 +8,12 @@ import { VersionesService } from '../../services/versiones/versiones.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NuevaVersionComponent } from '../nueva-version/nueva-version.component';
 import { Route, Router } from '@angular/router';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-uml-casos-uso',
   standalone: true,
-  imports: [],
+  imports: [NavbarComponent],
   templateUrl: './uml-casos-uso.component.html',
   styleUrl: './uml-casos-uso.component.css'
 })
