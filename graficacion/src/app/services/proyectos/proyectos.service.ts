@@ -22,4 +22,7 @@ export class ProyectosService {
   updateProyectos(id_proyecto: number,nombre: string, descripcion: string):Observable<proyectos|proyectos[]>{
     return this.http.put<proyectos|proyectos[]>(`${this.apiUrl}/proyecto/${id_proyecto}`,{nombre, descripcion});
   }
+  getProyecto(id_proyecto:any):Observable<proyectos>{
+    return this.http.get<proyectos>(`${this.apiUrl}/proyecto/nombre/${id_proyecto}`);
+  }
 }

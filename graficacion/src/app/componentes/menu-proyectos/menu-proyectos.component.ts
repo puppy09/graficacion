@@ -40,7 +40,7 @@ export class MenuProyectosComponent {
       dialogRef.afterClosed().subscribe((result)=>{
         if(result){
           this.getProyectos();
-          this.router.navigate(['proyectos']);
+          this.router.navigate(['diagramas']);
         }
       })
    }
