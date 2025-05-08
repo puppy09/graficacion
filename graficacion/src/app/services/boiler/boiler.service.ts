@@ -17,6 +17,6 @@ export class BoilerService {
     console.log("credenciales",credenciales);
     console.log("grapgModel",graphModel);
     console.log("paquetes",paquetesGraph);
-     return this.http.post<any>(`${this.apiUrl}/project/crear`,{nombreProyecto:nombrePro,graphModel:graphModel,credenciales:credenciales,paquetesGraph:paquetesGraph});
+     return this.http.post<any>(`${this.apiUrl}/api/project/crear`,{nombreProyecto:nombrePro,graphModel:graphModel,credenciales:credenciales,paquetesGraph:paquetesGraph});
   }
 }

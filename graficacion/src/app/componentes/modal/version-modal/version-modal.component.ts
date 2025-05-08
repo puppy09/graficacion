@@ -79,7 +79,7 @@ ngOnInit(){
     }
       //console.log("peticionooooo",peticion);
       const peticion={
-        "nombreProyecto":this.nombrePro,
+        "nombreProyecto":localStorage.getItem("nombrePro"),
         "credenciales":{
 
           },
@@ -112,7 +112,6 @@ ngOnInit(){
         console.log(errorMessage);
       }
     );*/
-
   }
 
   getVersiones(): void{

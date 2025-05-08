@@ -45,8 +45,9 @@ export class MenuProyectosComponent {
       })
    }
 
-   Ingresar(id: number){
+   Ingresar(id: number, nombre:string){
     localStorage.setItem('proyectoId', id.toString());
+    localStorage.setItem('nombrePro',nombre);
     console.log('Proyecto guardado en local storage: ', id);
     this.router.navigate(["diagramas"]);
    }

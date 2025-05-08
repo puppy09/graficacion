@@ -40,6 +40,8 @@ export class NuevoProyectoComponent {
     ).subscribe(response =>{
       this.toastr.success('Proyecto Creado con Éxito', 'Nice!');
       const newProjectID = response.id_proyecto;
+      localStorage.setItem("proyectoId",newProjectID.toString());
+      localStorage.setItem("nombrePro",response.nombre);
       this.dialogRef.close(newProjectID);
       this.crearVersiones(newProjectID);
       console.log("ID DEL PROYECTO CREADO", newProjectID);
