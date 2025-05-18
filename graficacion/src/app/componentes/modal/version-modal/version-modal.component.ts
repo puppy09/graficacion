@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { ProyectosService } from '../../../services/proyectos/proyectos.service';
 import { BoilerService } from '../../../services/boiler/boiler.service';
 import { Toast, ToastrService } from 'ngx-toastr';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-version-modal',
@@ -43,12 +44,36 @@ ngOnInit(){
       console.error('No se encontró el ID del proyecto en localStorage');
       return;
     }
-    //console.log("id_proyecto");
-    //console.log(id_proyecto);
-    //console.log(this.versionesSelected);
-    
+
+
+    const credenciales={
+      "bddHost":this.bddHost,
+      "bddUser":this.bddUser,
+      "bddPass":this.bddPass
+    }
+
+
+    forkJoin({
+    clases: this.verSvc.getJson(this.versionesSelected[0]),
+    componentes: this.verSvc.getJson(this.versionesSelected[1]),
+    paquetes: this.verSvc.getJson(this.versionesSelected[2])
+  }).subscribe(({ clases, componentes, paquetes }) => {
+    const graphModel2 = JSON.parse(clases.json);
+  const paquetes2 = JSON.parse(paquetes.json);
+
+  localStorage.setItem("clases", JSON.stringify(graphModel2));
+  localStorage.setItem("componentes", JSON.stringify(componentes.json));
+  localStorage.setItem("paquetes", JSON.stringify(paquetes2));
+
+  const nombrePro = localStorage.getItem("nombrePro");
+
+    this.boilerSvc.hacerBoiler(nombrePro, credenciales, graphModel2, paquetes2).subscribe(
+      () => {
+        this.toastr.success('Creando Proyecto...!', 'Nice!');
+      }
+    );
     //Obtenemos los Componentes
-    this.verSvc.getJson(this.versionesSelected[1]).subscribe((data)=>{
+    /*this.verSvc.getJson(this.versionesSelected[1]).subscribe((data)=>{
       //console.log(data);
       localStorage.setItem("componentes",JSON.stringify(data.json));
     })
@@ -63,7 +88,7 @@ ngOnInit(){
     this.verSvc.getJson(this.versionesSelected[0]).subscribe((data)=>{
       //console.log(data);
       localStorage.setItem("clases",JSON.stringify(data.json))
-    })
+    })*/
 
     /*this.proSvc.getProyecto(localStorage.getItem("proyectoId")).subscribe((data)=>{
      this.nombrePro=data.nombre;
@@ -73,29 +98,19 @@ ngOnInit(){
       
     })*/
 
-    const credenciales={
-      "bddHost":this.bddHost,
-      "bddUser":this.bddUser,
-      "bddPass":this.bddPass
-    }
+    
       //console.log("peticionooooo",peticion);
-      const peticion={
+      /*const peticion={
         "nombreProyecto":localStorage.getItem("nombrePro"),
         "credenciales":{
 
           },
           "graphModel":localStorage.getItem("clases"),
           "paquetesGraph":localStorage.getItem("paquetes")
-        }
-        localStorage.setItem("peticion",JSON.stringify(peticion));
+        }*/
+       
+//        localStorage.setItem("peticion",JSON.stringify(peticion));
         //const peticionBien = localStorage.getItem("peticion")
-
-    this.boilerSvc.hacerBoiler(localStorage.getItem("nombrePro"),credenciales,localStorage.getItem("clases"),localStorage.getItem("paquetes")).subscribe(
-      (data)=>{
-        this.toastr.success('Creando Proyecto...!', 'Nice!');
-      }
-    )
-
     /*this.modlv.postVersiones(id_proyecto, this.versionesSelected[3],this.versionesSelected[1],
       this.versionesSelected[4],this.versionesSelected[2],this.versionesSelected[0], this.bddHost, this.bddUser, this.bddPass
 
@@ -113,7 +128,7 @@ ngOnInit(){
         console.log(errorMessage);
       }
     );*/
-  }
+  })}
 
   getVersiones(): void{
     const id_proyecto = localStorage.getItem("proyectoId");
