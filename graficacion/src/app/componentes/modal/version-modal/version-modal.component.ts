@@ -65,12 +65,13 @@ ngOnInit(){
       localStorage.setItem("clases",JSON.stringify(data.json))
     })
 
-    this.proSvc.getProyecto(localStorage.getItem("proyectoId")).subscribe((data)=>{
+    /*this.proSvc.getProyecto(localStorage.getItem("proyectoId")).subscribe((data)=>{
      this.nombrePro=data.nombre;
+     localStorage.setItem("nombrePro",data.nombre);
       console.log(data);
       //console.log(this.nombrePro);
       
-    })
+    })*/
 
     const credenciales={
       "bddHost":this.bddHost,
@@ -89,7 +90,7 @@ ngOnInit(){
         localStorage.setItem("peticion",JSON.stringify(peticion));
         //const peticionBien = localStorage.getItem("peticion")
 
-    this.boilerSvc.hacerBoiler(this.nombrePro,credenciales,localStorage.getItem("clases"),localStorage.getItem("paquetes")).subscribe(
+    this.boilerSvc.hacerBoiler(localStorage.getItem("nombrePro"),credenciales,localStorage.getItem("clases"),localStorage.getItem("paquetes")).subscribe(
       (data)=>{
         this.toastr.success('Creando Proyecto...!', 'Nice!');
       }
