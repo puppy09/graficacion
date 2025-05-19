@@ -35,7 +35,7 @@ export class MenuProyectosComponent {
    }
    OpenModal(){
     const dialogRef = this.dialog.open(NuevoProyectoComponent,{
-      width:'800 px'});
+      width:'1000 px'});
 
       dialogRef.afterClosed().subscribe((result)=>{
         if(result){
