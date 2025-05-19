@@ -21,6 +21,7 @@ export class UmlPaquetesComponent implements AfterViewInit {
   myDiagram!: go.Diagram;
   myPalette!: go.Palette;
   public relationshipMode: boolean = false;
+  private modeloFueGuardado = false;
   tipoRelacion: string = "";
   packageCounter: number = 0;
   versiones: any = {};
@@ -29,12 +30,12 @@ export class UmlPaquetesComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.initDiagram();
 
-    const savedModel = localStorage.getItem('miModelo');
-    if (savedModel) {
-      this.myDiagram.model = go.Model.fromJson(savedModel);
-      const textarea = document.getElementById('mySavedModel') as HTMLTextAreaElement;
-      if (textarea) textarea.value = savedModel;
-    }
+    // const savedModel = localStorage.getItem('miModelo');
+    // if (savedModel) {
+    //   this.myDiagram.model = go.Model.fromJson(savedModel);
+    //   const textarea = document.getElementById('mySavedModel') as HTMLTextAreaElement;
+    //   if (textarea) textarea.value = savedModel;
+    // }
   }
 
   ngOnInit(){
@@ -312,7 +313,12 @@ initDiagram(): void {
     this.levelSlider.nativeElement.addEventListener('input', () => this.reexpand());
     this.levelSlider.nativeElement.addEventListener('input', () => this.reexpand());
 
-  this.load();
+ const fueGuardado = localStorage.getItem("modeloGuardado") === "true";
+  if (fueGuardado) {
+    this.load(); // Solo carga el modelo si fue guardado previamente
+  }
+
+
 }
 
  /** RESALTAR GRUPOS AL ARRASTRAR **/
@@ -360,34 +366,38 @@ initDiagram(): void {
 
   /** GUARDAR Y CARGAR MODELO **/
  save(): void {
-  const jsonData = this.myDiagram.model.toJson();
-  (document.getElementById('mySavedModel') as HTMLTextAreaElement).value = jsonData;
-  this.myDiagram.isModified = false;
-
-  // Guardar en localStorage con la clave 'miModelo'
-  localStorage.setItem("miModelo", jsonData);
-
-  // También hacer la llamada a la API si quieres
-  const version = localStorage.getItem('version');
-  this.VerSvc.updateVersion(version, jsonData).subscribe(
-    (data) => {
-      this.guardadoConExito();
-    },
-    (error) => {
-      this.toastr.error(`Error al guardar ${error}`, 'Error');
-    }
-  );
-}
-
-load(): void {
-  const savedModel = localStorage.getItem('miModelo');
-  if (savedModel) {
-    this.myDiagram.model = go.Model.fromJson(savedModel);
+    const jsonData = this.myDiagram.model.toJson();
+    (document.getElementById('mySavedModel') as HTMLTextAreaElement).value = jsonData;
     this.myDiagram.isModified = false;
-  } else {
-    console.warn('No se encontró un modelo guardado en localStorage.');
+
+    localStorage.setItem("miModelo", jsonData);
+    localStorage.setItem("modeloGuardado", "true"); // ✅ Indicador persistente
+    this.modeloFueGuardado = true;
+
+    const version = localStorage.getItem('version');
+    this.VerSvc.updateVersion(version, jsonData).subscribe(
+      (data) => {
+        this.guardadoConExito();
+      },
+      (error) => {
+        this.toastr.error(`Error al guardar ${error}`, 'Error');
+      }
+    );
   }
-}
+
+
+  load(): void {
+    const savedModel = localStorage.getItem('miModelo');
+    if (savedModel) {
+      this.myDiagram.model = go.Model.fromJson(savedModel);
+      const textarea = document.getElementById('mySavedModel') as HTMLTextAreaElement;
+      if (textarea) textarea.value = savedModel;
+      this.myDiagram.isModified = false;
+    } else {
+      console.warn('No se encontró un modelo guardado en localStorage.');
+    }
+  }
+
 
 
   // load(): void {
@@ -439,24 +449,24 @@ load(): void {
   }
 
   setLinkType(type: string) {
-  this.tipoRelacion = type;
+    this.tipoRelacion = type;
 
-  // Activar modo relación si no está activo
-  if (!this.relationshipMode) {
-    this.relationshipMode = true;
-  }
+    // Activar modo relación si no está activo
+    if (!this.relationshipMode) {
+      this.relationshipMode = true;
+    }
 
-  this.myDiagram.toolManager.linkingTool.isEnabled = true;
+    this.myDiagram.toolManager.linkingTool.isEnabled = true;
 
-  let linkData: any = { category: type };
+    let linkData: any = { category: type };
 
-  if (type === "dashed") {
-    linkData = { category: "dashed" };
-  }
+    if (type === "dashed") {
+      linkData = { category: "dashed" };
+    }
 
-  this.myDiagram.toolManager.linkingTool.archetypeLinkData = linkData;
+    this.myDiagram.toolManager.linkingTool.archetypeLinkData = linkData;
 
-  console.log(`Modo de relación activado: ${type}`);
+    console.log(`Modo de relación activado: ${type}`);
   }
 
   
@@ -545,7 +555,10 @@ load(): void {
       }
 
     
-  salir() {
+ salir() {
+    if (!this.modeloFueGuardado) {
+      localStorage.removeItem("miModelo");
+    }
     this.router.navigate(['/diagramas']);
   }
 }
