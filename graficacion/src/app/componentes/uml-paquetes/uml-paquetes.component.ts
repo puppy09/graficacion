@@ -4,11 +4,13 @@ import { VersionesService } from '../../services/versiones/versiones.service';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { NuevaVersionComponent } from '../nueva-version/nueva-version.component';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-diagram-package',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './uml-paquetes.component.html',
   styleUrl: './uml-paquetes.component.css'
 })
@@ -22,11 +24,17 @@ export class UmlPaquetesComponent implements AfterViewInit {
   tipoRelacion: string = "";
   packageCounter: number = 0;
   versiones: any = {};
-  constructor(private VerSvc: VersionesService, private toastr: ToastrService, private verSvc: VersionesService, private dialog: MatDialog){}
+  constructor(private VerSvc: VersionesService, private toastr: ToastrService, private verSvc: VersionesService, private dialog: MatDialog, private router: Router){}
 
   ngAfterViewInit(): void {
     this.initDiagram();
-//S    this.getVersiones();
+
+    const savedModel = localStorage.getItem('miModelo');
+    if (savedModel) {
+      this.myDiagram.model = go.Model.fromJson(savedModel);
+      const textarea = document.getElementById('mySavedModel') as HTMLTextAreaElement;
+      if (textarea) textarea.value = savedModel;
+    }
   }
 
   ngOnInit(){
@@ -81,10 +89,14 @@ initDiagram(): void {
 
   this.myPalette.layout = $(go.GridLayout, {
     wrappingColumn: 2,
-    cellSize: new go.Size(100, 50),  // Ajuste de tamaño para los elementos
+    cellSize: new go.Size(100, 50),
     spacing: new go.Size(10, 10),
-    alignment: go.GridAlignment.Position
+    alignment: go.GridAlignment.Position,
+
+    // Aquí sobreescribimos arrangementOrigin para desplazar hacia abajo
+    arrangementOrigin: new go.Point(0, 100)  // Mueve todo 100px hacia abajo
   });
+
 
   this.myPalette.nodeTemplateMap.add('ArrowNode',
     $(go.Node, 'Horizontal',
@@ -103,14 +115,39 @@ initDiagram(): void {
   this.myDiagram.nodeTemplate = $(go.Node, 'Auto',
     {
       mouseDrop: (e: go.InputEvent, node: go.GraphObject) => this.finishDrop(e, (node as go.Node).containingGroup),
-          fromLinkable: true,
-          toLinkable: true
+      fromLinkable: true,
+      toLinkable: true,
+      selectionAdorned: true,
+      resizable: true,
+      resizeObjectName: "SHAPE"
     },
     $(go.Shape, 'RoundedRectangle', 
-      { stroke: null, strokeWidth: 0 }
+      { 
+        name: "SHAPE",
+        fill: "#ACE600",  // Default color that matches your palette
+        stroke: "#333",
+        strokeWidth: 1,
+        minSize: new go.Size(100, 50)
+      }
     ).bind('fill', 'color'),
-    $(go.TextBlock, { margin: 8, editable: true, font: '13px Lora, serif' })
-      .bind('text')
+    $(go.Panel, "Vertical",
+      { margin: 8 },
+      $(go.TextBlock,
+        { 
+          font: "bold 14px Lora, serif",
+          stroke: "#333",
+          margin: new go.Margin(0, 0, 4, 0)
+        }
+      ).bind('text'),
+      $(go.TextBlock,
+        { 
+          font: "12px Lora, serif",
+          stroke: "#666",
+          editable: true,
+          margin: new go.Margin(0, 0, 0, 0)
+        }
+      ).bind('text', 'description')
+    )
   );
 
     this.myDiagram.linkTemplate =
@@ -157,89 +194,128 @@ initDiagram(): void {
         )
       );
 
-
   this.myDiagram.addDiagramListener('ExternalObjectsDropped', (e) => {
-    e.subject.each((part: go.Part) => {
-      if (part.category === 'ArrowNode') {
-        // Convertir nodo en Link
-        const model = this.myDiagram.model as go.GraphLinksModel;
-        model.removeNodeData(part.data); // Eliminar el nodo de la flecha
-  
-        // Crear un enlace con una posición inicial
-        model.addLinkData({ from: '', to: '' });
-      } else if (part instanceof go.Group) { 
-          const model = this.myDiagram.model as go.GraphLinksModel;
-          model.setDataProperty(part.data, "text", "Paquete " + this.packageCounter++);
-        }
-      }
-    );
-  }); 
-  
+    const model = this.myDiagram.model as go.GraphLinksModel;
+
+    // Filtrar solo los grupos (paquetes)
+    const groups = model.nodeDataArray.filter(data => data['isGroup']);
+
+    // Reordenar y reasignar claves proporcionales
+    groups.forEach((data, index) => {
+      const newId = index + 1;
+      model.setDataProperty(data, "key", newId);
+      model.setDataProperty(data, "packageId", newId);
+      model.setDataProperty(data, "text", "Paquete " + newId);
+    });
+
+    // Actualizar contador
+    this.packageCounter = groups.length + 1;
+  });
+
+
+  this.myDiagram.addDiagramListener("SelectionDeleted", (e) => {
+    const model = this.myDiagram.model as go.GraphLinksModel;
+
+    // Filtrar paquetes restantes
+    const groups = model.nodeDataArray.filter(data => data['isGroup']);
+
+    // Reasignar claves proporcionalmente
+    groups.forEach((data, index) => {
+      const newId = index + 1;
+      model.setDataProperty(data, "key", newId);
+      model.setDataProperty(data, "packageId", newId);
+      model.setDataProperty(data, "text", "Paquete " + newId);
+    });
+
+    // Actualizar contador
+    this.packageCounter = groups.length + 1;
+  });
+
+
   
   /** TEMPLATE PARA GRUPOS **/
   this.myDiagram.groupTemplate = $(go.Group, 'Auto',
     {
-      background: 'skyblue',
+      background: 'transparent',
       ungroupable: true,
-      layout: $(go.GridLayout, { wrappingColumn: Infinity, cellSize: new go.Size(1, 1), spacing: new go.Size(5, 5) }),
+      layout: $(go.GridLayout, 
+        { 
+          wrappingColumn: Infinity, 
+          cellSize: new go.Size(1, 1), 
+          spacing: new go.Size(10, 10)
+        }
+      ),
       mouseDragEnter: (e: go.InputEvent, grp: go.GraphObject, prev: go.GraphObject) => this.highlightGroup(e, grp as go.Group, true),
       mouseDragLeave: (e: go.InputEvent, grp: go.GraphObject, next: go.GraphObject) => this.highlightGroup(e, grp as go.Group, false),
       mouseDrop: (e: go.InputEvent, grp: go.GraphObject) => this.finishDrop(e, grp as go.Group),
-      isSubGraphExpanded: true // Permite expansión por defecto
+      isSubGraphExpanded: true,
+      selectionAdorned: true,
+      resizable: true,
+      resizeObjectName: "SHAPE"
     },
-    $(go.Panel, "Auto",
-      $(go.Shape, // Simulación de carpeta
-        {
-          figure: "RoundedRectangle",
-          fill: "#F5F5DC", // Color beige claro (similar a una carpeta)
-          stroke: "#D4AF37", // Borde dorado
-          strokeWidth: 2,
-          spot1: go.Spot.TopLeft,
-          spot2: go.Spot.BottomRight
-        }
+    $(go.Shape, 'RoundedRectangle', 
+      { 
+        name: "SHAPE",
+        fill: "#FFDD33",  // Default color that matches your palette
+        stroke: "#59524c",
+        strokeWidth: 2
+      }
+    ).bind('fill', 'color'),
+    $(go.Panel, 'Vertical',
+      { margin: new go.Margin(10, 10, 0, 10) },
+      $(go.Panel, 'Horizontal', 
+        { 
+          stretch: go.Stretch.Horizontal,
+          alignment: go.Spot.Top
+        },
+        $(go.TextBlock, 
+          { 
+            editable: true, 
+            font: 'bold 16px Lora, serif',
+            stroke: "#333",
+            margin: new go.Margin(0, 0, 5, 0)
+          }
+        ).bind('text'),
+        $('SubGraphExpanderButton', 
+          { 
+            alignment: go.Spot.Right,
+            margin: new go.Margin(0, 0, 5, 0)
+          }
+        )
       ),
-      $(go.Panel, "Vertical",
-        $(go.Panel, "Horizontal", { stretch: go.Stretch.Horizontal },
-          $(go.TextBlock, {
-            editable: true,
-            font: "bold 14px Lora, serif",
-            stroke: "#5C4033", // Color marrón oscuro
-            margin: new go.Margin(5, 0, 5, 10)
-          }).bind("text"),
-          $("SubGraphExpanderButton", { alignment: go.Spot.Right })
-        ),
-        $(go.Placeholder, { padding: 10 }) // Contenedor para los elementos dentro del grupo
+      $(go.Placeholder, 
+        { 
+          padding: 10,
+          alignment: go.Spot.TopLeft
+        }
       )
     )
-    //   $(go.Shape, 'Rectangle', { stroke: '#59524c', strokeWidth: 1 })
-    //  .bind('fill', 'color'), // Ahora usará la propiedad `color` del modelo  
-    // $(go.Panel, 'Vertical',
-    //   $(go.Panel, 'Horizontal', { stretch: go.Stretch.Horizontal },
-    //     $(go.TextBlock, { editable: true, font: 'bold 16px Lora, serif' })
-    //       .bind('text'),
-    //     $('SubGraphExpanderButton', { alignment: go.Spot.Right })
-    //   ),
-    //   $(go.Placeholder, { padding: 10 })
-    // )
   );
-// ...existing code...
-    /** CONFIGURAR MODELO DE LA PALETA **/
+
     this.myPalette.model = new go.GraphLinksModel([
-      { text: 'Nodo', color: '#ACE600', clave: 'nodo' },  
-      { text: 'Clase', color: '#FF0000', clave: 'clase' },
-      { text: 'Componente', color: '#0000FF', key: 'component' },                                                 
-      { isGroup: true, text: 'Paquete ' + this.packageCounter++, horiz: 'true', color: '#FFDD33',clave: 'paquete' } ,    
+    // { text: 'Nodo', color: '#ACE600', clave: 'nodo' },  
+    { isGroup: true, text: 'Paquete', color: '#FFDD33', clave: 'paquete', key: 0 },
+    { text: 'Clase', color: '#FF0000', clave: 'clase' },
+    // { text: 'Componente', color: '#0000FF', key: 'component' },                                                 
     ]);
+
+
+    // this.myPalette.model = new go.GraphLinksModel([
+    // { text: 'Nodo', color: '#ACE600', clave: 'nodo' },  
+    // { text: 'Clase', color: '#FF0000', clave: 'clase' },
+    // { text: 'Componente', color: '#0000FF', key: 'component' },                                                 
+    // { isGroup: true, text: 'Paquete ' + this.packageCounter++, horiz: 'true', color: '#FFDD33', clave: 'paquete' },    
+    // ]);
 
     /** EVENTOS PARA SLIDER **/
     this.levelSlider.nativeElement.addEventListener('change', () => this.reexpand());
     this.levelSlider.nativeElement.addEventListener('input', () => this.reexpand());
     this.levelSlider.nativeElement.addEventListener('input', () => this.reexpand());
 
-    this.load();
-  }
+  this.load();
+}
 
-  /** RESALTAR GRUPOS AL ARRASTRAR **/
+ /** RESALTAR GRUPOS AL ARRASTRAR **/
   highlightGroup(e: go.InputEvent, grp: go.Group, show: boolean): void {
     if (!grp) return;
     e.handled = true;
@@ -281,28 +357,49 @@ initDiagram(): void {
     return d;
   }
 
+
   /** GUARDAR Y CARGAR MODELO **/
-  save(): void {
-    (document.getElementById('mySavedModel') as HTMLTextAreaElement).value = this.myDiagram.model.toJson();
+ save(): void {
+  const jsonData = this.myDiagram.model.toJson();
+  (document.getElementById('mySavedModel') as HTMLTextAreaElement).value = jsonData;
+  this.myDiagram.isModified = false;
+
+  // Guardar en localStorage con la clave 'miModelo'
+  localStorage.setItem("miModelo", jsonData);
+
+  // También hacer la llamada a la API si quieres
+  const version = localStorage.getItem('version');
+  this.VerSvc.updateVersion(version, jsonData).subscribe(
+    (data) => {
+      this.guardadoConExito();
+    },
+    (error) => {
+      this.toastr.error(`Error al guardar ${error}`, 'Error');
+    }
+  );
+}
+
+load(): void {
+  const savedModel = localStorage.getItem('miModelo');
+  if (savedModel) {
+    this.myDiagram.model = go.Model.fromJson(savedModel);
     this.myDiagram.isModified = false;
-
-    const jsonData = this.myDiagram.model.toJson();
-    //localStorage.setItem("diagramaGuardado",jsonData);
-    //let proyecto = localStorage.getItem('proyectoId');
-    //let contenido = localStorage.getItem("diagramaGuardado");
-    const version = localStorage.getItem('version');
-    this.VerSvc.updateVersion(version, jsonData).subscribe(
-      (data)=>{
-        this.guardadoConExito();
-      },(error)=>{
-        this.toastr.error(`Error al guardar ${error}`, 'Error');
-      }
-    )
+  } else {
+    console.warn('No se encontró un modelo guardado en localStorage.');
   }
+}
 
-  load(): void {
-    this.myDiagram.model = go.Model.fromJson((document.getElementById('mySavedModel') as HTMLTextAreaElement).value);
-  }
+
+  // load(): void {
+  //   // this.myDiagram.model = go.Model.fromJson((document.getElementById('mySavedModel') as HTMLTextAreaElement).value);
+  //   const savedModel = localStorage.getItem('miModelo');
+  //   if (savedModel) {
+  //     this.myDiagram.model = go.Model.fromJson(savedModel);
+  //     this.myDiagram.isModified = false;
+  //   } else {
+  //     console.warn('No se encontró un modelo guardado en localStorage.');
+  //   }
+  // }
 
   guardadoConExito(){
     this.toastr.success('Diagrama Guardado con Éxito', 'Nice!');
@@ -342,20 +439,26 @@ initDiagram(): void {
   }
 
   setLinkType(type: string) {
-    this.tipoRelacion = type;
-    this.myDiagram.toolManager.linkingTool.isEnabled = true; // Habilita la herramienta de enlace
-  
-    let linkData: any = { category: type }; // Define la categoría según el tipo
-    
-    // Si es una línea normal sin texto, no se agrega el texto
-    if (type === "dashed") {
-      linkData = { category: "dashed" };
-    }
-  
-    this.myDiagram.toolManager.linkingTool.archetypeLinkData = linkData;
-    
-    console.log(`Modo de relación activado: ${type}`);
+  this.tipoRelacion = type;
+
+  // Activar modo relación si no está activo
+  if (!this.relationshipMode) {
+    this.relationshipMode = true;
   }
+
+  this.myDiagram.toolManager.linkingTool.isEnabled = true;
+
+  let linkData: any = { category: type };
+
+  if (type === "dashed") {
+    linkData = { category: "dashed" };
+  }
+
+  this.myDiagram.toolManager.linkingTool.archetypeLinkData = linkData;
+
+  console.log(`Modo de relación activado: ${type}`);
+  }
+
   
   deleteSelection() {
     const selected = this.myDiagram.selection;
@@ -380,7 +483,7 @@ initDiagram(): void {
 
         if (this.versiones.length > 0) {
           const firstVersionId = this.versiones[0].id_version;
-          this.cargarVersion({ target: { value: firstVersionId } });
+          this.cargarVersion(firstVersionId); // ya no necesita { target: ... }
         }
       },
       (error)=>{
@@ -388,20 +491,35 @@ initDiagram(): void {
       }
     );
   }
-  cargarVersion(event: any): void{
-      const version = event.target.value;
-      console.log(version);
-      this.verSvc.getVersion(version).subscribe(
-        (data)=>{
-          this.myDiagram.model = go.Model.fromJson(data.json);
-          localStorage.setItem("version",version);
+
+  cargarVersion(versionId: any): void {
+    const id = Number(versionId); // Ensure it's a number
+    console.log(id);
+    this.verSvc.getVersion(id).subscribe(
+      (data) => {
+        this.myDiagram.model = go.Model.fromJson(data.json);
+        localStorage.setItem("version", id.toString());
+      },
+      (error) => {
+        this.toastr.error('No hay un diagrama guardado', 'Error');
+      }
+    );
+  }
+
+  // cargarVersion(event: any): void{
+  //     const version = event.target.value;
+  //     console.log(version);
+  //     this.verSvc.getVersion(version).subscribe(
+  //       (data)=>{
+  //         this.myDiagram.model = go.Model.fromJson(data.json);
+  //         localStorage.setItem("version",version);
   
           
-        },(error)=>{
-            this.toastr.error('No hay un diagrama guardado', 'Error');
-        }
-      )
-    }
+  //       },(error)=>{
+  //           this.toastr.error('No hay un diagrama guardado', 'Error');
+  //       }
+  //     )
+  //   }
 
     guardarNuevaVersion(){
     
@@ -425,6 +543,11 @@ initDiagram(): void {
                   });
                 
       }
+
+    
+  salir() {
+    this.router.navigate(['/diagramas']);
+  }
 }
 
 
