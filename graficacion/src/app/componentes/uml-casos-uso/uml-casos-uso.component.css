@@ -48,7 +48,7 @@ body::before {
 
 /* Styling for both divs */
 #myPaletteDiv, #myDiagramDiv {
-    background-color: white;
+    background-color: rgb(198, 12, 12);
     border: 1px solid black;
     position: relative; /* Ensures it's above the background */
     z-index: 2;
