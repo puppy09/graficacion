@@ -203,6 +203,9 @@ export class UmlComponentesComponent {
     });
   }
 
+  volver(){
+    this.router.navigate(['diagramas']);
+  }
   guardarDiagrama() {
     if (!this.diagram) return;
     const jsonData = this.diagram.model.toJson();

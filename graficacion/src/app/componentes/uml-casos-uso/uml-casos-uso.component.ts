@@ -236,6 +236,9 @@ export class UmlCasosUsoComponent {
     console.log("Modo de Inclusión")
   }
 
+  volver(){
+    this.router.navigate(['diagramas']);
+  }
   asociacion(){
     this.tipoRelacion = 'normal';
     this.diagram.toolManager.linkingTool.archetypeLinkData = {  category: 'normal' };

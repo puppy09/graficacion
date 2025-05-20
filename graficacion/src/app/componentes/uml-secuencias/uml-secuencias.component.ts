@@ -238,6 +238,9 @@ export class UmlSecuenciasComponent implements AfterViewInit {
     this.myDiagram.model = go.Model.fromJson(modelData);
   }
 
+  volver(){
+    this.router.navigate(['diagramas']);
+  }
   // Guardar el diagrama en formato JSON
   guardarDiagrama() {
     if (!this.myDiagram.model) return;

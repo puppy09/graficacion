@@ -34,10 +34,9 @@ ngOnInit(){
   console.log("versiones");
   console.log(this.allVersiones);
   console.log("versiones");
-
-
-
 }
+
+
   SubmitVersion(){
     const id_proyecto = localStorage.getItem("proyectoId");
     if (!id_proyecto) {
@@ -149,6 +148,5 @@ ngOnInit(){
         console.log(errorMessage);
       }
     );
-
   }
 }

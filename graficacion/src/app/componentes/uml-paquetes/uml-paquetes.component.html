@@ -6,7 +6,9 @@
         <input #levelSlider type="range" min="0" max="5" value="0">
         <textarea id="mySavedModel" class="model-textarea"></textarea>
         <div class="buttons"
-          ><button (click)="setLinkType('import')">Modo Include</button>
+          >
+          <button (click)="volver()">Volver</button>
+          <button (click)="setLinkType('import')">Modo Include</button>
           <button (click)="setLinkType('access')">Modo Access</button>
           <button (click)="setLinkType('dashed')">Modo Línea Punteada</button>
           <button (click)="deleteSelection()">Eliminar Seleccionado</button>

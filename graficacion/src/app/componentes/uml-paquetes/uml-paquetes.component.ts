@@ -339,6 +339,9 @@ initDiagram(): void {
   }
 
 
+  volver(){
+    this.router.navigate(['diagramas']);
+  }
   /** GUARDAR Y CARGAR MODELO **/
 save(): void {
   const jsonData = this.myDiagram.model.toJson();
