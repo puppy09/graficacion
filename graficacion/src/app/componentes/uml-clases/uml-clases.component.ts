@@ -5,6 +5,7 @@ import { ToastrService } from 'ngx-toastr';
 import { VersionesService } from '../../services/versiones/versiones.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NuevaVersionComponent } from '../nueva-version/nueva-version.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-uml-clases',
@@ -20,7 +21,7 @@ export class UmlClasesComponent {
   private propertyTemplate!: go.Panel;
   private methodTemplate!: go.Panel;
 
-  constructor(private toastr: ToastrService, private verSvc: VersionesService,private dialog: MatDialog) {}
+  constructor(private toastr: ToastrService, private verSvc: VersionesService,private dialog: MatDialog, private router: Router) {}
 
   ngOnInit() {
     this.initDiagram();
@@ -764,4 +765,8 @@ initPalette() {
       case 'implementacion': this.implementacion(); break;
       case 'herencia': this.herencia(); break;
     }}
+    volver(){
+      this.router.navigate(['diagramas']);
+    }
 }
+

@@ -15,6 +15,10 @@ export class MenuPrincipalComponent {
 
   constructor(private route: ActivatedRoute, private router: Router, private dialog: MatDialog) {}
 
+  volver(){
+    this.router.navigate(['/']);
+  }
+
   iraCU(){
     this.router.navigate(['casosuso']);
   }

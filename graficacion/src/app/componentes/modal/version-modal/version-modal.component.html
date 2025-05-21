@@ -34,14 +34,21 @@
   }
 
 }
+<br>
 <div>
-  <p>Credenciales para BDD</p>
-  <label for="">bddHost</label>
-  <input type="text" [(ngModel)]="bddHost" class="border-2 border-gray-300 rounded-md p-2 mb-4" placeholder="Host de la base de datos" />
-  <label for="">bddUser</label>
-  <input type="text" [(ngModel)]="bddUser" class="border-2 border-gray-300 rounded-md p-2 mb-4" placeholder="Usuario de la base de datos" />
-  <label for="">bddPass</label>
-  <input type="text" [(ngModel)]="bddPass" class="border-2 border-gray-300 rounded-md p-2 mb-4" placeholder="Contraseña de la base de datos" />
+  <div class="w-full ml-6 md:w-2/3 px-3 mb-6 md:mb-0">
+      <label class="block uppercase tracking-wide text-gray-700 text-base font-bold mb-2" for="grid-state">Credenciales para BDD</label>
+
+<label class="block uppercase tracking-wide text-gray-700 text-base font-bold mb-2" for="grid-state">Host de la BDD</label>
+<input type="text" [(ngModel)]="bddHost" class="border-2 border-gray-300 rounded-md p-2 mb-4 w-[400px]" placeholder="Host de la base de datos" />
+
+<label class="block uppercase tracking-wide text-gray-700 text-base font-bold mb-2" for="grid-state">Usuario de la BDD</label>
+<input type="text" [(ngModel)]="bddUser" class="border-2 border-gray-300 rounded-md p-2 mb-4 w-[400px]" placeholder="Usuario de la base de datos" />
+
+<label class="block uppercase tracking-wide text-gray-700 text-base font-bold mb-2" for="grid-state">Contraseña de la BDD</label>
+<input type="text" [(ngModel)]="bddPass" class="border-2 border-gray-300 rounded-md p-2 mb-4 w-[400px]" placeholder="Contraseña de la base de datos" />
+
+  </div>
 </div>
 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
   <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>

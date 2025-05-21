@@ -16,6 +16,7 @@
         <div id="myDiagramDiv"></div>
     </div>
     <div class="button-container">
+        <button (click)="volver()">Volver</button>
         <label for="relacionesSelect" id="txtRelaciones">Relaciones:</label>
         <select id="relacionesSelect" (change)="ejecutarRelacion($event)">
           <option value="">Elija una relacion</option>
