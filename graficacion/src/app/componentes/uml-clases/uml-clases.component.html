@@ -16,17 +16,21 @@
         <div id="myDiagramDiv"></div>
     </div>
     <div class="button-container">
-        
-        <button (click)="cerouno()">0 : 1</button>
-        <button (click)="ceromuchos()">0 : *</button>
-        <button (click)="unouno()">1 : 1</button>
-        <button (click)="unomuchos()">1 : *</button>
-        <button (click)="mn()">m : n</button>
-        <button (click)="agregacion()">Agregacion</button>
-        <button (click)="composicion()">Composicion</button>
-        <button (click)="implementacion()">implementacion</button>
-        <button (click)="herencia()">Herencia</button>
-        
+        <label for="relacionesSelect" id="txtRelaciones">Relaciones:</label>
+        <select id="relacionesSelect" (change)="ejecutarRelacion($event)">
+          <option value="">Elija una relacion</option>
+          <option value="cerouno">0 : 1</option>
+          <option value="ceromuchos">0 : *</option>
+          <option value="unouno">1 : 1</option>
+          <option value="unomuchos">1 : *</option>
+          <option value="mn">m : n</option>
+          <option value="agregacion">Agregación</option>
+          <option value="composicion">Composición</option>
+          <option value="implementacion">Implementación</option>
+          <option value="herencia">Herencia</option>
+        </select>
+
+        <!-- Botones que se quedan visibles -->
         <button (click)="guardarDiagrama()">Guardar Diagrama</button>
         <button (click)="guardarNuevaVersion()">Guardar Nueva Version</button>
         <button (click)="cargarDiagrama()">Cargar Diagrama</button>

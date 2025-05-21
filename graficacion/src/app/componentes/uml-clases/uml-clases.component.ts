@@ -25,7 +25,6 @@ export class UmlClasesComponent {
   ngOnInit() {
     this.initDiagram();
     this.initPalette();
-    this.getVersiones();
   }
 
   initDiagram() {
@@ -125,16 +124,8 @@ export class UmlClasesComponent {
       $(go.TextBlock, { isMultiline: false, editable: true })
         .bindTwoWay('text', 'name')
         .bind('isUnderline', 'scope', (s: string) => s[0] === 'c'),
-      $(go.TextBlock, '()')
-        .bind('text', 'parameters', (parr: any[]) => {
-          let s = '(';
-          for (let i = 0; i < parr.length; i++) {
-            const param = parr[i];
-            if (i > 0) s += ', ';
-            s += param.name + ': ' + param.type;
-          }
-          return s + ')';
-        }),
+      $(go.TextBlock, { isMultiline: false, editable: true })
+        .bindTwoWay('text', 'parameters'),
       $(go.TextBlock, '')
         .bind('text', 'type', (t: string) => t ? ': ' : ''),
       $(go.TextBlock, { isMultiline: false, editable: true })
@@ -165,7 +156,7 @@ export class UmlClasesComponent {
         }
       },
       $(go.Panel, 'Auto',
-        $(go.Shape, { fill: 'lightyellow' }),
+        $(go.Shape, 'RoundedRectangle', { fill: 'white' }),
         $(go.Panel, 'Table',
           { defaultRowSeparatorStroke: 'black' },
           // Nombre de la clase
@@ -183,7 +174,7 @@ export class UmlClasesComponent {
             margin: 3,
             stretch: go.Stretch.Horizontal,
             defaultAlignment: go.Spot.Left,
-            background: 'lightyellow',
+            background: 'white',
             itemTemplate: this.propertyTemplate
           }).bind('itemArray', 'properties'),
          $(go.Panel, 'Horizontal', {
@@ -198,7 +189,7 @@ export class UmlClasesComponent {
                  if (obj?.part?.data) {
                    const node = obj.part;
                    this.diagram.startTransaction('add property');
-                   this.diagram.model.addArrayItem(node.data.properties, { name: 'newProp', type: 'string', visibility: '+' });
+                   this.diagram.model.addArrayItem(node.data.properties, { name: 'Prop', type: 'string', visibility: '+' });
                    this.diagram.commitTransaction('add property');
                  } else {
                    console.error("No se pudo acceder a los datos del nodo.");
@@ -251,7 +242,7 @@ export class UmlClasesComponent {
             margin: 3,
             stretch: go.Stretch.Horizontal,
             defaultAlignment: go.Spot.Left,
-            background: 'lightyellow',
+            background: 'white',
             itemTemplate: this.methodTemplate
           }).bind('itemArray', 'methods'),
           $(go.Panel, 'Horizontal', {
@@ -266,7 +257,8 @@ export class UmlClasesComponent {
                 if (obj?.part?.data) {
                   const node = obj.part;
                   this.diagram.startTransaction('add method');
-                  this.diagram.model.addArrayItem(node.data.methods, { name: 'newMethod', type: 'void', visibility: '+' });
+                  this.diagram.model.addArrayItem(node.data.methods, { name: 'Metodo', parameters: '()', type: 'void', visibility: '+' }
+                  );
                   this.diagram.commitTransaction('add method');
                 } else {
                   console.error("No se pudo acceder a los datos del nodo.");
@@ -580,92 +572,40 @@ export class UmlClasesComponent {
         ).bind('text', 'toText', (text: string) => text || '*') // Enlace de datos
       )
     );
-        
 
-    // Modelo inicial
-    this.diagram.model = $(go.GraphLinksModel, {
-      nodeDataArray: [
-        {
-          key: 1,
-          name: 'ClaseA',
-          properties: [
-            { name: 'atributo1', type: 'string', visibility: '+' }
-          ],
-          methods: [
-            { name: 'metodo1', type: 'void', visibility: '+' }
-          ]
-        },
-      ],
-      linkDataArray: []
-    });
+  
+    // Estas líneas son la clave:
+    this.diagram.model = new go.GraphLinksModel();
+    this.diagram.model.copiesArrays = true;
+    this.diagram.model.copiesArrayObjects = true;
+
   }
 
-  initPalette() {
+  
+
+initPalette() {
     const $ = go.GraphObject.make;
 
-    // Plantilla para la paleta (igual al nodo del diagrama)
-    const paletteNodeTemplate = $(
-      go.Node, 'Auto',
-      {
-        locationSpot: go.Spot.Center,
-        resizable: false,
-        selectable: true,
-        copyable: true,
-        minSize: new go.Size(100, 50),
-      },
-      $(go.Shape, { fill: 'lightyellow' }),
-      $(go.Panel, 'Table',
-        { defaultRowSeparatorStroke: 'black' },
-        // Nombre de la clase
-        $(go.TextBlock, {
-          row: 0, columnSpan: 2, margin: 3, alignment: go.Spot.Center,
-          font: 'bold 12pt sans-serif',
-          isMultiline: false, editable: false
-        }).bind('text', 'name'),
-        // Propiedades
-        $(go.TextBlock, 'Propiedades', { row: 1, font: 'italic 10pt sans-serif' })
-          .bindObject('visible', 'visible', (v: boolean) => !v, undefined, 'PROPERTIES'),
-        $(go.Panel, 'Vertical', {
-          name: 'PROPERTIES',
-          row: 1,
-          margin: 3,
-          stretch: go.Stretch.Horizontal,
-          defaultAlignment: go.Spot.Left,
-          background: 'lightyellow',
-          itemTemplate: this.propertyTemplate
-        }).bind('itemArray', 'properties'),
-        // Métodos
-        $(go.TextBlock, 'Methods', { row: 2, font: 'italic 10pt sans-serif' })
-          .bindObject('visible', 'visible', (v: boolean) => !v, undefined, 'METHODS'),
-        $(go.Panel, 'Vertical', {
-          name: 'METHODS',
-          row: 2,
-          margin: 3,
-          stretch: go.Stretch.Horizontal,
-          defaultAlignment: go.Spot.Left,
-          background: 'lightyellow',
-          itemTemplate: this.methodTemplate
-        }).bind('itemArray', 'methods')
-      )
-    );
-
     this.palette = $(go.Palette, 'myPaletteDiv', {
-      nodeTemplate: paletteNodeTemplate, // Usa la misma plantilla que el diagrama
-    });
-
-    this.palette.model = $(go.GraphLinksModel, {
-      nodeDataArray: [
-        {
-          key: 1,
-          name: 'Clase',
+      nodeTemplate:
+        $(go.Node, 'Spot',
+          $(go.Panel, 'Auto',
+            $(go.Shape, 'RoundedRectangle', { fill: 'lightgray' }),
+            $(go.TextBlock, { margin: 5 }, new go.Binding('text', 'name'))
+          )
+        ),
+      model: new go.GraphLinksModel([
+        { // Este objeto define la estructura del nodo que se creará al arrastrar
+          name: "Clase",
           properties: [
-            { name: 'atributo1', type: 'string', visibility: '+' }
+            { name: "Prop", type: "int", visibility: "public" }
           ],
           methods: [
-            { name: 'metodo1', type: 'void', visibility: '+' }
+            { name: 'Metodo', parameters: '()', type: 'void ', visibility: '+' }
+
           ]
         }
-      ],
+      ])
     });
   }
 
@@ -810,4 +750,18 @@ export class UmlClasesComponent {
     pdf.addImage(imageData, "PNG", 10, 10, 280, 150);
     pdf.save("diagrama.pdf");
   }
+
+  ejecutarRelacion(event: Event): void {
+    const valor = (event.target as HTMLSelectElement).value;
+    switch (valor) {
+      case 'cerouno': this.cerouno(); break;
+      case 'ceromuchos': this.ceromuchos(); break;
+      case 'unouno': this.unouno(); break;
+      case 'unomuchos': this.unomuchos(); break;
+      case 'mn': this.mn(); break;
+      case 'agregacion': this.agregacion(); break;
+      case 'composicion': this.composicion(); break;
+      case 'implementacion': this.implementacion(); break;
+      case 'herencia': this.herencia(); break;
+    }}
 }
