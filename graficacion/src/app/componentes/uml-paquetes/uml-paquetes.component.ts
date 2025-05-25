@@ -6,11 +6,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { NuevaVersionComponent } from '../nueva-version/nueva-version.component';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-diagram-package',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, NavbarComponent],
   templateUrl: './uml-paquetes.component.html',
   styleUrl: './uml-paquetes.component.css'
 })

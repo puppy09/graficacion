@@ -4,10 +4,11 @@ import {MatDialog, MatDialogModule} from '@angular/material/dialog'
 // import { NuevoProyectoComponent } from '../../nuevo-proyecto/nuevo-proyecto.component';
 import { CommonModule } from '@angular/common';
 import { VersionModalComponent } from '../modal/version-modal/version-modal.component';
+import { NavbarComponent } from '../navbar/navbar.component';
 @Component({
   selector: 'app-menu-principal',
   standalone: true,
-  imports: [MatDialogModule],
+  imports: [MatDialogModule, NavbarComponent],
   templateUrl: './menu-principal.component.html',
   styleUrl: './menu-principal.component.css'
 })

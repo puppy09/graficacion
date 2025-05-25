@@ -6,11 +6,15 @@ import { VersionesService } from '../../services/versiones/versiones.service';
 import { MatDialog } from '@angular/material/dialog';
 import { NuevaVersionComponent } from '../nueva-version/nueva-version.component';
 import { Router } from '@angular/router';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-uml-clases',
+  standalone: true,
+  imports:[NavbarComponent],
   templateUrl: './uml-clases.component.html',
-  styleUrls: ['./uml-clases.component.css']
+  styleUrls: ['./uml-clases.component.css'],
+ 
 })
 export class UmlClasesComponent {
   diagram!: go.Diagram;

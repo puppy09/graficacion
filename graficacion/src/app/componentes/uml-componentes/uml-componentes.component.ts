@@ -1,18 +1,17 @@
 import { Component } from '@angular/core';
 import * as go from 'gojs';
 import jsPDF from "jspdf";
-import html2canvas from 'html2canvas';
-import { catchError, groupBy } from 'rxjs';
 import { ToastrService } from 'ngx-toastr';
 import { VersionesService } from '../../services/versiones/versiones.service';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { NuevaVersionComponent } from '../nueva-version/nueva-version.component';
+import { NavbarComponent } from '../navbar/navbar.component';
 
 @Component({
   selector: 'app-uml-componentes',
   standalone: true,
-  imports: [],
+  imports: [NavbarComponent],
   templateUrl: './uml-componentes.component.html',
   styleUrl: './uml-componentes.component.css'
 })
