@@ -52,7 +52,7 @@ initDiagram(): void {
     'undoManager.isEnabled': true,
     'InitialLayoutCompleted': () => this.updateTotalGroupDepth(),
     mouseDrop: (e: go.InputEvent) => this.finishDrop(e, null),
-    layout: $(go.GridLayout, { wrappingWidth: Infinity })
+    layout: $(go.GridLayout, { wrappingWidth: Infinity }) 
   });
 
   this.myDiagram.layout = $(go.GridLayout, {
@@ -60,7 +60,7 @@ initDiagram(): void {
     cellSize: new go.Size(100, 100), // Tamaño de cada celda
     spacing: new go.Size(10, 10) // Espaciado entre elementos
   });
-  
+  this.myDiagram.toolManager.linkingTool.isEnabled = false,  
   /** PALETA **/
   this.myPalette = $(go.Palette, this.paletteDiv.nativeElement, {
     nodeTemplateMap: this.myDiagram.nodeTemplateMap,
@@ -122,9 +122,11 @@ initDiagram(): void {
         { 
           font: "bold 14px Lora, serif",
           stroke: "#333",
-          margin: new go.Margin(0, 0, 4, 0)
+          margin: new go.Margin(0, 0, 4, 0),
+          editable: true,
         }
-      ).bind('text'),
+        ,new go.Binding("text").makeTwoWay()
+      ),
       $(go.TextBlock,
         { 
           font: "12px Lora, serif",
@@ -132,7 +134,7 @@ initDiagram(): void {
           editable: true,
           margin: new go.Margin(0, 0, 0, 0)
         }
-      ).bind('text', 'description')
+      )
     )
   );
 
@@ -191,7 +193,7 @@ initDiagram(): void {
       const newId = index + 1;
       model.setDataProperty(data, "key", newId);
       model.setDataProperty(data, "packageId", newId);
-      model.setDataProperty(data, "text", "Paquete " + newId);
+      // model.setDataProperty(data, "text", "Paquete " + newId);
     });
 
     // Actualizar contador
@@ -210,7 +212,7 @@ initDiagram(): void {
       const newId = index + 1;
       model.setDataProperty(data, "key", newId);
       model.setDataProperty(data, "packageId", newId);
-      model.setDataProperty(data, "text", "Paquete " + newId);
+      // model.setDataProperty(data, "text", "Paquete " + newId);
     });
 
     // Actualizar contador
@@ -261,7 +263,8 @@ initDiagram(): void {
             stroke: "#333",
             margin: new go.Margin(0, 0, 5, 0)
           }
-        ).bind('text'),
+          ,new go.Binding("text").makeTwoWay()
+        ),
         $('SubGraphExpanderButton', 
           { 
             alignment: go.Spot.Right,
@@ -287,7 +290,6 @@ initDiagram(): void {
 
     /** EVENTOS PARA SLIDER **/
     this.levelSlider.nativeElement.addEventListener('change', () => this.reexpand());
-    this.levelSlider.nativeElement.addEventListener('input', () => this.reexpand());
     this.levelSlider.nativeElement.addEventListener('input', () => this.reexpand());
 
   const fueGuardado = localStorage.getItem("modeloGuardado") === "true";
@@ -367,11 +369,16 @@ save(): void {
 
  load(): void {
   const json = localStorage.getItem("miModelo");
-  if (json) {
-    this.myDiagram.model = go.Model.fromJson(json);
-    this.myDiagram.delayInitialization(() => this.myDiagram.zoomToFit());
-  } else {
-    this.toastr.warning('No hay un modelo guardado para cargar.', 'Atención');
+  try{
+      if (json) {
+      this.myDiagram.model = go.Model.fromJson(json);
+      this.myDiagram.delayInitialization(() => this.myDiagram.zoomToFit());
+    } else {
+      this.toastr.warning('No hay un modelo guardado para cargar.', 'Atención');
+    }
+  } catch (error) {
+      console.error("Error al cargar el modelo desde localStorage:", error);
+      this.toastr.error('Error al cargar el diagrama guardado.')
   }
  }
 
@@ -388,7 +395,7 @@ save(): void {
 
   inclusionAccess() {
     this.tipoRelacion = 'access';
-    this.myDiagram.toolManager.linkingTool.isEnabled = false; // Habilita la herramienta de enlace
+    this.myDiagram.toolManager.linkingTool.isEnabled = true; // Habilita la herramienta de enlace
   
     // Configura el prototipo del enlace
     this.myDiagram.toolManager.linkingTool.archetypeLinkData = { 
@@ -401,7 +408,7 @@ save(): void {
   
   inclusionImport() {
     this.tipoRelacion = 'import';
-    this.myDiagram.toolManager.linkingTool.isEnabled = false; // Habilita la herramienta de enlace
+    this.myDiagram.toolManager.linkingTool.isEnabled = true; // Habilita la herramienta de enlace
   
     // Configura el prototipo del enlace
     this.myDiagram.toolManager.linkingTool.archetypeLinkData = { 
@@ -478,39 +485,28 @@ save(): void {
               this.toastr.error('No hay un diagrama guardado', 'Error');
           }
         )
-      }
-
-
-    guardarNuevaVersion(){
-    
-        const dialogRef = this.dialog.open(NuevaVersionComponent,{
-              width:'500 px'});
-                  dialogRef.afterClosed().subscribe(versionName => {
-                    if (versionName) {
-                      const jsonDiagram = this.myDiagram.model.toJson();
-                      const id_proyecto = localStorage.getItem("proyectoId");
-      
-                      this.verSvc.postVersiones(id_proyecto, 3, versionName.version, jsonDiagram).subscribe(
-                        (nueva) => {
-                          this.getVersiones();
-                          this.toastr.success('Nueva versión creada', 'Éxito');
-                        },
-                        (error) => {
-                          this.toastr.error('Error al crear la versión', 'Error');
-                        }
-                      );
-                    }
-                  });
-                
-      }
-
-    
-  salir(): void {
-    localStorage.removeItem("miModelo");
-    localStorage.removeItem("modeloGuardado"); // ✅ Limpia la marca
-    this.myDiagram.clear();
-    this.router.navigate(['/diagramas']);
   }
+
+
+  guardarNuevaVersion(){
+        const dialogRef = this.dialog.open(NuevaVersionComponent,{width:'500 px'});
+        dialogRef.afterClosed().subscribe(versionName => {
+          if (versionName) {
+            const jsonDiagram = this.myDiagram.model.toJson();
+            const id_proyecto = localStorage.getItem("proyectoId");
+      
+            this.verSvc.postVersiones(id_proyecto, 3, versionName.version, jsonDiagram).subscribe(
+              (nueva) => {
+                this.getVersiones();
+                this.toastr.success('Nueva versión creada', 'Éxito');
+              },
+              (error) => {
+                this.toastr.error('Error al crear la versión', 'Error');
+              }
+            );
+          }
+        });        
+      }
 
 }
 

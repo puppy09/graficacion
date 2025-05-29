@@ -4,16 +4,16 @@
 <br>
 <br>
 <div class="container">
-    <div #myPaletteDiv class="palette-container"></div>
+  <div #myPaletteDiv class="palette-container"></div>
     <div class="diagram-wrapper">
       <div #myDiagramDiv class="diagram-container"></div>
       <div class="controls">
         <input #levelSlider type="range" min="0" max="5" value="0">
-        <textarea id="mySavedModel" class="model-textarea"></textarea>
+        <textarea id="mySavedModel" style="display: none;"></textarea>
         <div class="buttons"
           >
           <button (click)="volver()">Volver</button>
-          <button (click)="setLinkType('import')">Modo Include</button>
+          <button (click)="setLinkType('import')">Modo Import</button>
           <button (click)="setLinkType('access')">Modo Access</button>
           <button (click)="setLinkType('dashed')">Modo Línea Punteada</button>
           <button (click)="deleteSelection()">Eliminar Seleccionado</button>
@@ -32,9 +32,9 @@
         </select>
       </div>
     </div>
-    <div class="bottom-left-exit">
-      <button (click)="salir()">Salir</button>
-    </div>
+    <!-- <div class="bottom-left-exit">
+      <button (click)="volver()">Salir</button>
+    </div> -->
   </div>
 </div>
   
