@@ -467,19 +467,18 @@ save(): void {
     );
   }
 
-  cargarVersion(versionId: any): void {
-    const id = Number(versionId); // Ensure it's a number
-    console.log(id);
-    this.verSvc.getVersion(id).subscribe(
-      (data) => {
-        this.myDiagram.model = go.Model.fromJson(data.json);
-        localStorage.setItem("version", id.toString());
-      },
-      (error) => {
-        this.toastr.error('No hay un diagrama guardado', 'Error');
+  cargarVersion(event: any): void{
+        const version = event.target.value;
+        console.log(version);
+        this.verSvc.getVersion(version).subscribe(
+          (data)=>{
+            this.myDiagram.model = go.Model.fromJson(data.json);
+            localStorage.setItem("version",version);
+          },(error)=>{
+              this.toastr.error('No hay un diagrama guardado', 'Error');
+          }
+        )
       }
-    );
-  }
 
 
     guardarNuevaVersion(){

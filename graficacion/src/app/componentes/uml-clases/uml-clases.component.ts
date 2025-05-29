@@ -30,6 +30,7 @@ export class UmlClasesComponent {
   ngOnInit() {
     this.initDiagram();
     this.initPalette();
+    this.getVersiones();
   }
 
   initDiagram() {
